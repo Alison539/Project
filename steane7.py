@@ -94,8 +94,7 @@ circuit = stim.Circuit("""
 #basically did the generators
 #v.impo detector just gets the result of the last measurement that occurred
 original_circuit_1 = ("""
-
-MPP Z3*Z4*Z5*Z6
+MPP Z3*Z4*Z5*Z7
 MPP Z1*Z2*Z5*Z6
 MPP Z0*Z2*Z4*Z6
 MPP X3*X4*X5*X6
