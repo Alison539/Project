@@ -15,14 +15,18 @@ import stim
 #bit-flip for d = 3 #where the original data bit is on 1
 repetition_bit-flip = stim.Circuit('''
  R 0 1 2
+ TICK
+ DEPOLARIZE(0.03) 0 2                             
  CX 1 0 1 2
+ TICK
+ X_ERROR(0.12) 0 1 2
  MR 1
  M 0 2
 
  DETECTOR(1,0) rec[-3]
- DETECTOR(1,1) rec[-1] rec[-1] rec[-3] 
-
  OBSERVABLE_INCLUDE rec[-1]
+ DETECTOR(1,1) rec[-1] rec[-1] rec[-3] 
+ TICK
  
  ''')
 
