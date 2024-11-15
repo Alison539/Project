@@ -34,6 +34,29 @@ repetition_bitflip = stim.Circuit('''
  
  ''')
 
+repetition_phaseflip = stim.Circuit('''
+ R 0 1 2
+ TICK
+ DEPOLARIZE1(0.03) 0 2                             
+ CX 0 1
+ TICK                            
+ CX 2 1 
+ TICK  
+ H 0 1 2                              
+ Z_ERROR(0.12) 0 1 2
+ MR 1
+ M 0 2
+
+ DETECTOR(1,0) rec[-3]
+ OBSERVABLE_INCLUDE(1) rec[-1]
+ DETECTOR(1,1) rec[-1] rec[-1] rec[-3] 
+ TICK
+ 
+ ''')
+
+print(repetition_phaseflip.diagram())
+"""
+
 # Writing code that generates the above code
 def generateRepetitionCode(distance: int, flip_error_prob: float, depolarization_error_prob: float):
     code = stim.Circuit()
@@ -169,3 +192,4 @@ print(repr(DEM))
 
 
 
+"""
