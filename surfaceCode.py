@@ -10,26 +10,6 @@ import stim
 import matplotlib.pyplot as plt
 from contextlib import redirect_stdout
 
-translate_qubit_indeces = {
-    0: 14,
-    1: 2,
-    2: 9,
-    3: 16,
-    4: 11,
-    5: 18,
-    6: 25,
-    7:13,
-    8:1,
-    9:8,
-    10:15,
-    11:3,
-    12:10,
-    13:17,
-    14:5,
-    15:12,
-    16:19
-}
-
 def sorted_complex(xs: Iterable[complex]) -> List[complex]:
     return sorted(xs, key=lambda v: (v.real, v.imag))
 
@@ -78,9 +58,14 @@ def generate_circuit_round(
     circuit = stim.Circuit()
 
     x_qubits = [q2i[q] for q,type in measurement_qubits.items() if type == 0]
-    all_qubits = [q2i[q] for q,type in measurement_qubits.items()]
+    all_measure_qubits = [q2i[q] for q,type in measurement_qubits.items()]
 
+    data_indeces = [q2i[q] for q in data_qubits]
+    
+    circuit.append_operation("TICK")
+    circuit.append_operation("DEPOLARIZE1", data_indeces, noise)
     circuit.append_operation("H", x_qubits)
+    circuit.append_operation("DEPOLARIZE1", x_qubits, noise)
     circuit.append_operation("TICK")
 
     for i in range(0, 4):
@@ -90,29 +75,32 @@ def generate_circuit_round(
             for q in target_pairs(measurement_qubit,distance,i,measurement_qubits[measurement_qubit])
         ]
 
+        
+        circuit.append_operation("CNOT", pair_targets)
         if noise > 0:
             circuit.append_operation("DEPOLARIZE2", pair_targets, noise)
-            circuit.append_operation("TICK")
-        circuit.append_operation("CNOT", pair_targets)
         circuit.append_operation("TICK")
 
     circuit.append_operation("H", x_qubits)
+    circuit.append_operation("DEPOLARIZE1", x_qubits, noise)
     circuit.append_operation("TICK")
-    circuit.append_operation("MR", all_qubits)
-    circuit.append_operation("TICK")
+    circuit.append_operation("X_ERROR", all_measure_qubits, noise)
+    circuit.append_operation("MR", all_measure_qubits)
+    circuit.append_operation("X_ERROR", all_measure_qubits, noise)
 
-    if detectors:
-        measurements_per_cycle = len(measurement_qubits)
+    
+    measurements_per_cycle = len(measurement_qubits)
 
-        for m in measurement_qubits:
-            record_target = []
-            relative_index = q2i[m] - measurements_per_cycle
-            record_target.append(stim.target_rec(relative_index))
+    for m in measurement_qubits:
+        record_target = []
+        relative_index = q2i[m] - measurements_per_cycle
+        record_target.append(stim.target_rec(relative_index))
+        if detectors:
             record_target.append(stim.target_rec(relative_index - measurements_per_cycle))
+        if detectors or (not detectors and measurement_qubits[m] == 1):
+            circuit.append_operation("DETECTOR", record_target, [m.real*2 + 1, m.imag*2 + 1, 0])
 
-            circuit.append_operation("DETECTOR", record_target, [m*2 + 1, m.imag*2 + 1, 0])
-
-        circuit.append_operation("SHIFT_COORDS", [], [0,0,1] )
+    circuit.append_operation("SHIFT_COORDS", [], [0,0,1] )
 
     return circuit
     
@@ -157,7 +145,7 @@ def generate_surface_code(distance: int, rounds: int, noise: float) -> stim.Circ
         full_circuit.append_operation("QUBIT_COORDS", [i], [q.real*2 + 1, q.imag*2 + 1])
 
     full_circuit.append_operation("R", q2i.values())
-    full_circuit.append_operation("TICK")
+    full_circuit.append_operation("X_ERROR",q2i.values(), noise )
 
     round_circuit_no_detectors = generate_circuit_round(
         noise=noise,
@@ -178,22 +166,45 @@ def generate_surface_code(distance: int, rounds: int, noise: float) -> stim.Circ
     )
 
     full_circuit += (
-        round_circuit_yes_detectors * rounds 
+        round_circuit_no_detectors +
+        round_circuit_yes_detectors * (rounds - 1)
     )
 
+    full_circuit.append_operation("X_ERROR",[q2i[q] for q in data_qubits] )
     full_circuit.append_operation("M", [q2i[q] for q in data_qubits])
-    full_circuit.append_operation("TICK")
+    
+
+    num_data = len(data_qubits)
+    num_measure = len(measure_qubits)
+    # Basically seem to add a detector for each of the Z measurements
+    for m in measure_qubits.keys():
+        if measure_qubits[m] == 1:
+            neighbours = []
+            for j in range(0, 4):
+                pairs = target_pairs(m,distance,j,1)
+                if len(pairs) > 0:
+                    neighbours.append(pairs[0])
+
+            relative_indeces = [stim.target_rec(- (num_data - (q2i[n] - num_measure)) ) for n in neighbours]
+            relative_indeces.append(stim.target_rec(q2i[m] - num_data - num_measure))
+            full_circuit.append_operation("DETECTOR", relative_indeces, [m.real*2 + 1, m.imag*2 + 1, 0])
+
+
     full_circuit.append_operation("OBSERVABLE_INCLUDE", [stim.target_rec(-(i+1)) for i in range(0, distance)], 0)
 
     return full_circuit
 
 def main():
+    distance = 5
+    rounds = 2
+    noise = 0.01
+
     with open('mycircuit.txt', 'w') as f:
-        circuit = generate_surface_code(3,1,0)
+        circuit = generate_surface_code(distance,rounds,noise)
         with redirect_stdout(f):
             print(circuit)
     with open('actual.txt','w') as f2:
-        circuit = stim.Circuit.generated("surface_code:rotated_memory_z", distance=3,rounds=1)
+        circuit = stim.Circuit.generated("surface_code:rotated_memory_z", distance=distance,rounds=rounds,after_clifford_depolarization=noise,before_measure_flip_probability=noise,before_round_data_depolarization=noise,after_reset_flip_probability=noise)
         with redirect_stdout(f2):
             print(circuit)
 

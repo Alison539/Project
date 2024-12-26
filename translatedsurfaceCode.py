@@ -81,7 +81,12 @@ def generate_circuit_round(
     x_qubits = [tqi[q2i[q]] for q,type in measurement_qubits.items() if type == 0]
     all_qubits = [tqi[q2i[q]] for q,type in measurement_qubits.items()]
 
+    data_indeces = [tqi[q2i[q]] for q in data_qubits]
+    
+    circuit.append_operation("TICK")
+    circuit.append_operation("DEPOLARIZE1", data_indeces, noise)
     circuit.append_operation("H", x_qubits)
+    circuit.append_operation("DEPOLARIZE1", x_qubits, noise)
     circuit.append_operation("TICK")
 
     for i in range(0, 4):
@@ -91,15 +96,17 @@ def generate_circuit_round(
             for q in target_pairs(measurement_qubit,distance,i,measurement_qubits[measurement_qubit])
         ]
 
+        circuit.append_operation("CNOT", pair_targets)
         if noise > 0:
             circuit.append_operation("DEPOLARIZE2", pair_targets, noise)
-            circuit.append_operation("TICK")
-        circuit.append_operation("CNOT", pair_targets)
         circuit.append_operation("TICK")
 
     circuit.append_operation("H", x_qubits)
+    circuit.append_operation("DEPOLARIZE1", x_qubits, noise)
     circuit.append_operation("TICK")
+    circuit.append_operation("X_ERROR", all_qubits, noise)
     circuit.append_operation("MR", all_qubits)
+    circuit.append_operation("X_ERROR", all_qubits, noise)
 
     
     measurements_per_cycle = len(measurement_qubits)
@@ -158,7 +165,7 @@ def generate_surface_code(distance: int, rounds: int, noise: float) -> stim.Circ
         full_circuit.append_operation("QUBIT_COORDS", [tqi[i]], [q.real*2 + 1, q.imag*2 + 1])
 
     full_circuit.append_operation("R", tqi.values())
-    full_circuit.append_operation("TICK")
+    full_circuit.append_operation("X_ERROR",q2i.values(), noise )
 
     round_circuit_no_detectors = generate_circuit_round(
         noise=noise,
@@ -183,6 +190,7 @@ def generate_surface_code(distance: int, rounds: int, noise: float) -> stim.Circ
         round_circuit_yes_detectors * (rounds - 1)
     )
 
+    full_circuit.append_operation("X_ERROR", [tqi[q2i[q]] for q in data_qubits], noise)
     full_circuit.append_operation("M", [tqi[q2i[q]] for q in data_qubits])
     
 
@@ -207,9 +215,9 @@ def generate_surface_code(distance: int, rounds: int, noise: float) -> stim.Circ
     return full_circuit
 
 def main():
-    distance = 5
+    distance = 3
     rounds = 2
-    noise = 0
+    noise = 0.01
 
     with open('mycircuit.txt', 'w') as f:
         circuit = generate_surface_code(distance,rounds,noise)
