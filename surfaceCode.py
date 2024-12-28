@@ -1,17 +1,16 @@
-import csv
-import pathlib
-import time
-from dataclasses import dataclass
 from typing import Callable, List, Dict, Any, Set, FrozenSet, Iterable, Tuple
 import math
 import pymatching
-import networkx as nx
 import stim
 import matplotlib.pyplot as plt
 from contextlib import redirect_stdout
+import sinter
+import os
+import scipy.stats
+import numpy as np
 
 def sorted_complex(xs: Iterable[complex]) -> List[complex]:
-    return sorted(xs, key=lambda v: (v.real, v.imag))
+    return sorted(xs, key=lambda v: (v.imag, v.real))
 
 def target_pairs(
     measurement_qubit: complex,
@@ -24,19 +23,19 @@ def target_pairs(
 
     match time:
         case 0:
-            data_qubit = measurement_qubit - 0.5 + 0.5*1j
+            data_qubit = measurement_qubit + 0.5 + 0.5*1j
         case 1:
-            if type == 0:
-                data_qubit = measurement_qubit - 0.5 - 0.5*1j
-            else:
-                data_qubit = measurement_qubit + 0.5 + 0.5*1j
-        case 2:
             if type == 1:
-                data_qubit = measurement_qubit - 0.5 - 0.5*1j
+                data_qubit = measurement_qubit + 0.5 - 0.5*1j
             else:
-                data_qubit = measurement_qubit + 0.5 + 0.5*1j
+                data_qubit = measurement_qubit - 0.5 + 0.5*1j
+        case 2:
+            if type == 0:
+                data_qubit = measurement_qubit + 0.5 - 0.5*1j
+            else:
+                data_qubit = measurement_qubit - 0.5 + 0.5*1j
         case 3:
-            data_qubit = measurement_qubit + 0.5 - 0.5*1j
+            data_qubit = measurement_qubit - 0.5 - 0.5*1j
 
     if data_qubit.real >= 0 and data_qubit.real < distance and data_qubit.imag >= 0 and data_qubit.imag < distance:
         if type == 0:
@@ -59,8 +58,10 @@ def generate_circuit_round(
 
     x_qubits = [q2i[q] for q,type in measurement_qubits.items() if type == 0]
     all_measure_qubits = [q2i[q] for q,type in measurement_qubits.items()]
+    all_measure_qubits.sort()
 
     data_indeces = [q2i[q] for q in data_qubits]
+    data_indeces.sort()
     
     circuit.append_operation("TICK")
     circuit.append_operation("DEPOLARIZE1", data_indeces, noise)
@@ -169,13 +170,16 @@ def generate_surface_code(distance: int, rounds: int, noise: float) -> stim.Circ
         round_circuit_no_detectors +
         round_circuit_yes_detectors * (rounds - 1)
     )
+    data_indeces = [q2i[q] for q in data_qubits]
+    data_indeces.sort()
 
-    full_circuit.append_operation("X_ERROR",[q2i[q] for q in data_qubits] )
-    full_circuit.append_operation("M", [q2i[q] for q in data_qubits])
+    full_circuit.append_operation("X_ERROR",data_indeces, noise )
+    full_circuit.append_operation("M", data_indeces)
     
 
     num_data = len(data_qubits)
     num_measure = len(measure_qubits)
+    number_of_detectors = 0
     # Basically seem to add a detector for each of the Z measurements
     for m in measure_qubits.keys():
         if measure_qubits[m] == 1:
@@ -188,25 +192,110 @@ def generate_surface_code(distance: int, rounds: int, noise: float) -> stim.Circ
             relative_indeces = [stim.target_rec(- (num_data - (q2i[n] - num_measure)) ) for n in neighbours]
             relative_indeces.append(stim.target_rec(q2i[m] - num_data - num_measure))
             full_circuit.append_operation("DETECTOR", relative_indeces, [m.real*2 + 1, m.imag*2 + 1, 0])
-
+            number_of_detectors += 1
 
     full_circuit.append_operation("OBSERVABLE_INCLUDE", [stim.target_rec(-(i+1)) for i in range(0, distance)], 0)
 
     return full_circuit
 
+def use_surface_code(surface_code_tasks,noise, graph_file):
+
+    
+    collected_surface_code_stats: List[sinter.TaskStats] = sinter.collect(
+        num_workers=int(os.cpu_count() or 0),
+        #num_workers=1,
+        tasks=surface_code_tasks,
+        decoders=['pymatching'],
+        max_shots=1_000_000,
+        max_errors=100,
+        print_progress=False,
+    )
+
+    xs = []
+    ys = []
+    log_ys = []
+    for stats in collected_surface_code_stats:
+        d = stats.json_metadata['d']
+        if not stats.errors:
+            print(f"Didn't see any errors for d={d}")
+            continue
+        per_shot = stats.errors / stats.shots
+        per_round = sinter.shot_error_rate_to_piece_error_rate(per_shot, pieces=stats.json_metadata['r'])
+        xs.append(d)
+        ys.append(per_round)
+        log_ys.append(np.log(per_round))
+    fit = scipy.stats.linregress(xs, log_ys)
+    
+    print(fit)
+
+    fig, ax = plt.subplots(1, 1)
+    ax.scatter(xs, ys, label=f"sampled logical error rate at p={noise[0]}")
+    ax.plot([0, 25],
+            [np.exp(fit.intercept), np.exp(fit.intercept + fit.slope * 25)],
+            linestyle='--',
+            label='least squares line fit')
+    ax.set_ylim(1e-12, 1e-0)
+    ax.set_xlim(0, 25)
+    ax.semilogy()
+    ax.set_title("Projecting distance needed to survive a trillion rounds")
+    ax.set_xlabel("Code Distance")
+    ax.set_ylabel("Logical Error Rate per Round")
+    ax.grid(which='major')
+    ax.grid(which='minor')
+    ax.legend()
+    fig.savefig(graph_file)
+
+
 def main():
-    distance = 5
-    rounds = 2
-    noise = 0.01
+    noise = 1e-3
+    distance = 3
+    rounds = 9
+    ds = [3,5,7,9]
+    noises = [0.01, 0.005, 0.001]
+
 
     with open('mycircuit.txt', 'w') as f:
         circuit = generate_surface_code(distance,rounds,noise)
         with redirect_stdout(f):
             print(circuit)
+        circuit.diagram('detslice-with-ops-svg')
+        circuit.diagram('timeline-svg')
     with open('actual.txt','w') as f2:
         circuit = stim.Circuit.generated("surface_code:rotated_memory_z", distance=distance,rounds=rounds,after_clifford_depolarization=noise,before_measure_flip_probability=noise,before_round_data_depolarization=noise,after_reset_flip_probability=noise)
         with redirect_stdout(f2):
             print(circuit)
+
+    my_surface_code_tasks = [
+        sinter.Task(
+            circuit= generate_surface_code(
+                rounds=d * 3,
+                distance= d,
+                noise=n
+            ),
+            json_metadata={'d':d, 'r': d*3, 'p': n},
+        )
+        for d in ds
+        for n in noises
+    ]
+    use_surface_code(my_surface_code_tasks,noises, "my_graph.png")
+    actual_surface_code_tasks = [
+        sinter.Task(
+            circuit= stim.Circuit.generated(
+                "surface_code:rotated_memory_z",
+                rounds=d * 3,
+                distance= d,
+                after_clifford_depolarization=n,
+                after_reset_flip_probability=n,
+                before_measure_flip_probability=n,
+                before_round_data_depolarization=n,
+            ),
+            json_metadata={'d':d, 'r': d*3, 'p': n},
+        )
+        for d in ds
+        for n in noises
+    ]
+    use_surface_code(actual_surface_code_tasks,noises, "actual_graph.png")
+    
 
 
 if __name__ == "__main__":
