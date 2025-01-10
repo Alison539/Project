@@ -1,0 +1,40 @@
+Subject: Phase 1 - Dauris: Enhancing a simulator for quantum stabilizer circuits
+
+Phase 1 Project Selection Status Report
+
+Name: Alison Dauris                                                            
+
+College: Robinson College                                                     
+
+CRSID: ad2160                                                
+
+Director of Studies: Richard Sharp                                         
+
+Please complete 1, 2 and 3 below.
+
+1. Please write 100 words on your current project ideas.
+
+Quantum error correction (QEC) is important because noise corrupts executions of quantum algorithms.
+Being able to visualise QEC is very useful for checking correctness, understanding architecture requirements and for reproducing research results easily.
+Stim is a fast stabilizer quantum simulator developed by Google, but it only supports qubits in 2D lattice shapes.
+The project would involve first researching Stim's development as well as what additional features to support and the design - for example what other qubit shapes, what representation and how error correction should be done.
+It would then involve developing an extension for Stim to be able support 1) additional physical qubit layouts, 2) additional QEC schemes (beyond surface codes) and 3) investigate how to visualize and model qubit layouts with defects.
+
+
+2. Please list names of potential project supervisors, indicating
+any interactions you have had with them, for example: not
+contacted, awaiting reply, in discussion, agreed to supervise.
+
+Prakash Murali - agreed to supervise
+
+
+3. Is there any chance that your project will involve any
+computing resources other than the Computing Service's MCS and
+software that is already installed there, for example: your own
+machine, machines in College, special peripherals, imported
+software packages, special hardware, network access, substantial
+extra disc space on the MCS.
+
+If so indicate below what, and what it is needed for.
+
+N/A
