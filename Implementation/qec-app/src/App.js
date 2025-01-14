@@ -7,9 +7,11 @@ import Rounds from "./pages/Rounds";
 import Postround_operations from "./pages/Postround_operations";
 import Set_details from "./pages/Set_details";
 import Output_code from "./pages/Output_code";
+import { CoordinateSystemProvider } from "./contexts/CoordinateSystemContext";
 
 function App() {
   return (
+    <CoordinateSystemProvider>
     <div className="main">
       <Router>
     <Routes>
@@ -24,6 +26,7 @@ function App() {
     </Router>
 
     </div>
+    </CoordinateSystemProvider>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import ConditionalNavigationButton from "../components/ConditionalNavigationButton";
 import {useNavigate } from "react-router-dom";
 import TopBanner from "../components/TopBanner";
@@ -6,7 +6,7 @@ import "../components/styles.css"
 import hexagonal_tiling from "../resources/honeycomb-tiling.png";
 import tetrakis_tiling from "../resources/tetrakis-tiling.png";
 import octagon_square_tiling from "../resources/honeycomb-tiling.png";
-
+import { CoordinateSystemContext } from "../contexts/CoordinateSystemContext";
 
 function getCoordinateSystemDetails(index){
     switch(index) {
@@ -30,19 +30,22 @@ function getCoordinateSystemDetails(index){
 }}
 
 
-const Select_coordinate_system = () => {
-  const [selected, setSelected] = useState(null);
-  const [dimension, setDimension] = useState(null)
+const Select_coordinate_system = () => { 
+  const {coordSys, setCoordSys, coordDimension, setCoordDimension} = useContext(CoordinateSystemContext)
+  const [selected, setSelected] = useState(coordSys);
+  const [dimension, setDimension] = useState(coordDimension)
   const navigate = useNavigate();
 
   const handleNext = () => {
     const num = parseInt(dimension, 10);
     if (num >= 3 && num <= 25 && selected != null) {
-        navigate("./Qubit_setup")
+        setCoordDimension(num);
+        setCoordSys(selected)
+        navigate("./Qubit_setup");
     }
     else {
         if (selected == null) {
-            alert("Please select a number between 3 and 25")
+            alert("Please select a coordinate system")
         }
         else{
             alert("Please choose a number between 3 and 25")
