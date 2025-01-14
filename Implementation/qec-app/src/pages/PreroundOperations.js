@@ -2,7 +2,7 @@ import React from "react";
 import NavigationButton from "../components/NavigationButton";
 import TopBanner from "../components/TopBanner";
 
-const Preround_operations = () => {
+const PreroundOperations = () => {
   return (
     <div className = "main">
         <TopBanner title="Before Round Operations" description="These operations added are only done at the very start." />
@@ -12,4 +12,4 @@ const Preround_operations = () => {
   );
 };
 
-export default Preround_operations; 
+export default PreroundOperations; 

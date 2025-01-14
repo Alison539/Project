@@ -30,7 +30,7 @@ function getCoordinateSystemDetails(index){
 }}
 
 
-const Select_coordinate_system = () => { 
+const SelectCoordinateSystem = () => { 
   const {coordSys, setCoordSys, coordDimension, setCoordDimension} = useContext(CoordinateSystemContext)
   const [selected, setSelected] = useState(coordSys);
   const [dimension, setDimension] = useState(coordDimension)
@@ -99,4 +99,4 @@ const Select_coordinate_system = () => {
     
 
 
-export default Select_coordinate_system; 
+export default SelectCoordinateSystem; 

@@ -3,7 +3,7 @@ import NavigationButton from "../components/NavigationButton";
 import TopBanner from "../components/TopBanner";
 import { CoordinateSystemContext } from "../contexts/CoordinateSystemContext";
 
-const Qubit_setup = () => {
+const QubitSetup = () => {
   const { coordSys, coordDimension} = useContext(CoordinateSystemContext);
 
   return (
@@ -17,4 +17,4 @@ const Qubit_setup = () => {
   );
 };
 
-export default Qubit_setup; 
+export default QubitSetup; 

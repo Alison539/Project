@@ -2,7 +2,7 @@ import React from "react";
 import NavigationButton from "../components/NavigationButton";
 import TopBanner from "../components/TopBanner";
 
-const Postround_operations = () => {
+const PostroundOperations = () => {
   return (
     <div className = "main">
         <TopBanner title="After Round Operations" description="Now add the qubit operations that occur once the rounds are complete." />
@@ -12,4 +12,4 @@ const Postround_operations = () => {
   );
 };
 
-export default Postround_operations; 
+export default PostroundOperations; 

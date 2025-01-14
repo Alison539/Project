@@ -2,7 +2,7 @@ import React from "react";
 import NavigationButton from "../components/NavigationButton";
 import TopBanner from "../components/TopBanner";
 
-const Set_details = () => {
+const SetDetails = () => {
   return (
     <div className = "main">
         <TopBanner title="Set The Details" description="Specify what the final details of your circuit are." />
@@ -12,4 +12,4 @@ const Set_details = () => {
   );
 };
 
-export default Set_details; 
+export default SetDetails; 
