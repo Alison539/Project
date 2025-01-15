@@ -7,6 +7,7 @@ import hexagonal_tiling from "../resources/honeycomb-tiling.png";
 import tetrakis_tiling from "../resources/tetrakis-tiling.png";
 import octagon_square_tiling from "../resources/honeycomb-tiling.png";
 import { CoordinateSystemContext } from "../contexts/CoordinateSystemContext";
+import { QubitContext } from "../contexts/QubitContext";
 
 function getCoordinateSystemDetails(index){
     switch(index) {
@@ -32,6 +33,7 @@ function getCoordinateSystemDetails(index){
 
 const SelectCoordinateSystem = () => { 
   const {coordSys, setCoordSys, coordDimension, setCoordDimension} = useContext(CoordinateSystemContext)
+  const {resetQubits} = useContext(QubitContext)
   const [selected, setSelected] = useState(coordSys);
   const [dimension, setDimension] = useState(coordDimension)
   const navigate = useNavigate();
@@ -41,6 +43,7 @@ const SelectCoordinateSystem = () => {
     if (num >= 3 && num <= 25 && selected != null) {
         setCoordDimension(num);
         setCoordSys(selected)
+        resetQubits()
         navigate("./Qubit_setup");
     }
     else {

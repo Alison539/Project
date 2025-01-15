@@ -4,7 +4,7 @@ export const CoordinateSystemContext = createContext();
 
 export const CoordinateSystemProvider = ({ children }) => {
     const [coordSys, setCoordSys] = useState(null);
-    const [coordDimension, setCoordDimension] = useState(null);
+    const [coordDimension, setCoordDimension] = useState(undefined);
 
     return(
         <CoordinateSystemContext.Provider value={{coordSys, setCoordSys, coordDimension, setCoordDimension}}>

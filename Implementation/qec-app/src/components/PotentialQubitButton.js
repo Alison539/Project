@@ -1,11 +1,9 @@
 import React from "react";
 import "./styles.css"
 
-const PotentialQubitButton = ({index, point, onClicked, qubitSize, zIndex, qubitcolor}) => {
-
+const PotentialQubitButton = ({point, onClicked, qubitSize, zIndex, qubitcolor, onClickedParameters, border}) => {
   return (
     <button
-        key={index}
         style={{
         position: "absolute",
         left: `${point.x}px`,
@@ -17,9 +15,12 @@ const PotentialQubitButton = ({index, point, onClicked, qubitSize, zIndex, qubit
         boxSizing: "border-box",
         padding: 0,
         margin: 0,
+        cursor: "pointer",
+        borderWidth:  `${border}px `,
+        borderColor: "black",
         backgroundColor: `#${qubitcolor}`,
         }}
-        onClick={onClicked}
+        onClick={() => onClicked(onClickedParameters)}
     />
   );
 };

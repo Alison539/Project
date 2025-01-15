@@ -8,10 +8,12 @@ import PostroundOperations from "./pages/PostroundOperations";
 import SetDetails from "./pages/SetDetails";
 import OutputCode from "./pages/OutputCode";
 import { CoordinateSystemProvider } from "./contexts/CoordinateSystemContext";
+import { QubitProvider } from "./contexts/QubitContext";
 
 function App() {
   return (
     <CoordinateSystemProvider>
+      <QubitProvider>
     <div className="main">
       <Router>
     <Routes>
@@ -26,6 +28,7 @@ function App() {
     </Router>
 
     </div>
+    </QubitProvider>
     </CoordinateSystemProvider>
   );
 }
