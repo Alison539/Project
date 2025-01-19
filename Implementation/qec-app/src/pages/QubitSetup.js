@@ -119,7 +119,7 @@ const QubitSetup = () => {
 
   const handleNext = () => {
     makeIdsConsecutive()
-    navigate("/Preround_operations");
+    navigate("/Rounds");
   }
 
   

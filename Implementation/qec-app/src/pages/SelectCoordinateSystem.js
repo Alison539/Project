@@ -69,7 +69,7 @@ const SelectCoordinateSystem = () => {
     <div className = "main">
         <TopBanner title="Select the Co-ordinate System" description="Choose the underlying coordinate grid. This determines the location of the qubits you can select to be part of your circuit." />
     <div style = {{display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px"}}>
-        {[1,2,3].map((index) => (
+        {[1,2].map((index) => (
             <button
             key = {index}
             onClick = {() => handleSelection(index)}

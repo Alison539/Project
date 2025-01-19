@@ -1,6 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import PotentialQubitButton from "./PotentialQubitButton";
 
+function drawCNOT(canvasRef, times, controlPoint, targetPoint) {
+
+}
+
+function calculateStartAndEnd(startQubit, endQubit) {
+
+}
+
 const QubitGraph = ({ points, connections, dimension, lineColour }) => {
   const canvasRef = useRef(null);
 
