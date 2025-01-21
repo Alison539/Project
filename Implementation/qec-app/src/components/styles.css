@@ -83,6 +83,24 @@
     padding: 10px;
   }
 
+  .details-option {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0;
+    padding: 0;
+  }
+
+  .details-input {
+    max-height: 25px;
+    border-radius: 5%;
+    text-align: center;
+    align-self: center;
+
+  }
+
+  .menu-grid{
+    display: grid 
+  }
   .option-button {
     color: var(--dark-text);
     border-radius: 20%;

@@ -43,20 +43,11 @@ export class Qubit {
         this.label = label;
     }
 }
-export class QubitGroup {
-    constructor(name, colour, index) {
-        this.name = name;
-        this.colour = colour;
-        this.index = index;
-    }
-}
-
 
 export const QubitProvider = ({ children }) => {
     const {coordsGivenCoordSys} = useContext(CoordinateSystemContext)
 
     const [qubits, setQubits] = useState([]);
-    const [qubitgroups, setQubitGroups] = useState([]);
     const [highestX, setHighestX] = useState(0);
     const [highestY, setHighestY] = useState(0);
 
