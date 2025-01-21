@@ -17,6 +17,9 @@ const Rounds = () => {
   const onSelectOperation = (operationID) => {
     setQubitToCopy(null)
     setCurrentOperation(operationID);
+    if (operationID !== 3) {
+      setControlQubit(null)
+    }
     setSupportMessage(supportMessages[operationID])
   }
 
@@ -57,13 +60,11 @@ const Rounds = () => {
   }
 
   const incrementTime = () => {
-    onSelectOperation(0)
     if (timeStep < 20) {
       setTimeStep(timeStep + 1);
     }
   }
   const decrementTime = () => {
-    onSelectOperation(0)
     if (timeStep > 1) {
       setTimeStep(timeStep - 1);
     }

@@ -112,9 +112,9 @@ export const OperationProvider = ({ children }) => {
         const newFocus = qubitOperations[newFocusID].getLocation()
         let newX = newFocus.x + (oldNeighbour.x - oldFocus.x)
         let newY = newFocus.y + (oldNeighbour.y - oldFocus.y)
-        if (coordSys == 1 && (newFocus.y % 2) !== (oldFocus.y % 2)){
+        if (coordSys === 1 && (newFocus.y % 2) !== (oldFocus.y % 2)){
             if ((oldNeighbour.y - oldFocus.y) !== 0){
-                if (oldFocus.y % 2 == 0){
+                if (oldFocus.y % 2 === 0){
                     newX += 1
                 }
                 else{
@@ -188,6 +188,7 @@ export const OperationProvider = ({ children }) => {
     }
 
     const addTwoQubitOp = (controlID, targetID, timestep) => {
+        console.log(controlID,targetID)
         const newTwoQubitOperations = new Array(length);
         for (let i = 0; i < length; i++) {
             newTwoQubitOperations[i] = new Array(length);
@@ -196,7 +197,8 @@ export const OperationProvider = ({ children }) => {
             }
         }
         const oldList = twoQubitOperations[controlID][targetID]
-        newTwoQubitOperations[controlID][targetID] = [...oldList, timestep]
+        newTwoQubitOperations[controlID][targetID] = [...new Set([...oldList, timestep])]
+        console.log(newTwoQubitOperations[controlID][targetID])
 
         setTwoQubitOperations(newTwoQubitOperations)
     }
