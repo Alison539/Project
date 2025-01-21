@@ -1,6 +1,19 @@
 :root {
+    --light-button-color: #b5c9b4;
     --button-color: #99b898;
     --button-hover: #769275;
+
+    --H-green: #91e48e;
+    --H-green-darker: #6aa768;
+    ;
+
+    --H_YZ-purple: #af8ee4;
+    --H_YZ-purple-darker: #915be7;
+
+    --qubit: #fff5d5;
+    --qubit-darker:#d9cfb1;
+
+
 
     --dark-text: #2a363b;
 
@@ -47,6 +60,37 @@
     bottom: 20px;
     size: 1.9rem;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  }
+
+  .small-circular-button {
+    background-color: var(--button-color);
+    color: var(--dark-text);
+    border-radius: 50%;
+    max-height: fit-content;
+    text-align: center;
+    cursor: pointer;
+    align-self: center
+  }
+
+  .centralised-menu-option {
+    border-bottom: 1.5px solid #2a363b;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+  }
+  .menu-option {
+    border-bottom: 1.5px solid #2a363b;
+    padding: 10px;
+  }
+
+  .option-button {
+    color: var(--dark-text);
+    border-radius: 20%;
+    text-align: center;
+    cursor: pointer;
+    width: 70%;
+    align-self: center;
+    background-color: var(--light-button-color);
   }
   
   .navigation-button:hover {

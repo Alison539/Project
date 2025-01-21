@@ -7,6 +7,7 @@ import { QubitContext } from "../contexts/QubitContext";
 import PotentialQubitButton from "../components/PotentialQubitButton";
 import { useNavigate } from "react-router-dom";
 import ConditionalNavigationButton from "../components/ConditionalNavigationButton";
+import { OperationContext } from "../contexts/OperationContext";
 
 function potentialQubitLocations(coordSys, coordDimension) {
   const qubitCoordinates = [];
@@ -16,9 +17,7 @@ function potentialQubitLocations(coordSys, coordDimension) {
     case 1: //Hexagonal Tiling
       for (let x = 0; x < coordDimension; x++) {
         for (let y = 0; y < coordDimension; y++) {
-          let newX = x + (y % 2) * 0.5
-          let newY = y * sin(Math.PI / 3)
-          qubitCoordinates.push({x: newX,y: newY})
+          qubitCoordinates.push({x: x,y: y})
         }     
       }
       highestX = coordDimension - 1;
@@ -68,8 +67,9 @@ function potentialQubitLocations(coordSys, coordDimension) {
 
 
 const QubitSetup = () => {
-  const { coordSys, coordDimension} = useContext(CoordinateSystemContext);
+  const { coordSys, coordDimension, coordsGivenCoordSys} = useContext(CoordinateSystemContext);
   const {qubits, addQubit, removeQubit, setLogicalObservablePerQubit, makeIdsConsecutive} = useContext(QubitContext)
+  const {instantiate} = useContext(OperationContext)
 
   const navigate = useNavigate();
 
@@ -96,9 +96,10 @@ const QubitSetup = () => {
   },[removeQubit, selectingLogicalObservable,setLogicalObservablePerQubit])
 
   const scaleCoordinate = (point) => {
+    const actualCoords = coordsGivenCoordSys(point)
     return({
-      x: ((point.x - highestX/2) * (30 - coordDimension) * 2),
-      y: ((point.y - highestY/2) * (30 - coordDimension) * 2),
+      x: ((actualCoords.x - highestX/2) * (30 - coordDimension) * 2),
+      y: ((actualCoords.y - highestY/2) * (30 - coordDimension) * 2),
     })
   }
 
@@ -118,7 +119,8 @@ const QubitSetup = () => {
   }
 
   const handleNext = () => {
-    makeIdsConsecutive()
+    makeIdsConsecutive();
+    instantiate();
     navigate("/Rounds");
   }
 

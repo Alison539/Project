@@ -9,11 +9,13 @@ import SetDetails from "./pages/SetDetails";
 import OutputCode from "./pages/OutputCode";
 import { CoordinateSystemProvider } from "./contexts/CoordinateSystemContext";
 import { QubitProvider } from "./contexts/QubitContext";
+import { OperationProvider } from "./contexts/OperationContext";
 
 function App() {
   return (
     <CoordinateSystemProvider>
       <QubitProvider>
+        <OperationProvider>
     <div className="main">
       <Router>
     <Routes>
@@ -28,6 +30,7 @@ function App() {
     </Router>
 
     </div>
+    </OperationProvider>
     </QubitProvider>
     </CoordinateSystemProvider>
   );

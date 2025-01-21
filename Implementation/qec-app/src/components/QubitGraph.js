@@ -1,5 +1,9 @@
-import React, { useEffect, useRef } from "react";
-import PotentialQubitButton from "./PotentialQubitButton";
+import React, { useContext, useEffect, useRef } from "react";
+import OperationQubitButton from "./OperationQubitButton";
+import {max} from "mathjs"
+import { QubitContext } from "../contexts/QubitContext";
+import { OperationContext } from "../contexts/OperationContext";
+import { CoordinateSystemContext } from "../contexts/CoordinateSystemContext";
 
 function drawCNOT(canvasRef, times, controlPoint, targetPoint) {
 
@@ -9,49 +13,83 @@ function calculateStartAndEnd(startQubit, endQubit) {
 
 }
 
-const QubitGraph = ({ points, connections, dimension, lineColour }) => {
+const QubitGraph = ({onClicked, controlQubit, qubitToCopy}) => {
+  const {coordsGivenCoordSys} = useContext(CoordinateSystemContext)
+  const {qubitOperations, twoQubitOperations} = useContext(OperationContext)
+  const {highestX, highestY} = useContext(QubitContext);
+
   const canvasRef = useRef(null);
+  const coordDimension = max(highestX + 1,highestY + 1)
+  const qubitSize = max(30 - (coordDimension), 4)
+
+  const canvasWidth = ((highestX*1.5) * (30 - coordDimension) * 2) + qubitSize*2;
+  const canvasHeight = ((highestY) * (30 - coordDimension) * 2) + qubitSize*2;
+
+  const scaleCoordinate = (point) => {
+    const actualCoords = coordsGivenCoordSys(point)
+    return({
+      x: ((actualCoords.x + highestX/2) * (30 - coordDimension) * 2),
+      y: ((actualCoords.y ) * (30 - coordDimension) * 2),
+    })
+  }
+  
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    const onClicked = (point) => {
-        
+    const scaleCoordinate = (point) => {
+      const actualCoords = coordsGivenCoordSys(point)
+      return({
+        x: ((actualCoords.x + (highestX/2)) * (30 - coordDimension) * 2) + qubitSize/2,
+        y: ((actualCoords.y) * (30 - coordDimension) * 2) + qubitSize/2,
+      })
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    connections.forEach(([startIndex, endIndex]) => {
-      const startPoint = points[startIndex];
-      const endPoint = points[endIndex];
-      if (startPoint && endPoint) {
-        ctx.beginPath();
-        ctx.moveTo(startPoint.x, startPoint.y);
-        ctx.lineTo(endPoint.x, endPoint.y);
-        ctx.strokeStyle = {lineColour};
-        ctx.lineWidth = max(5 - ({dimension}/2), 2); 
-        ctx.stroke();
-      }
-    });
-  }, [points, connections]);
+    twoQubitOperations.forEach((targets, cindex) => {
+      targets.forEach((timesteps, tindex) => {
+        if(timesteps.length > 0){
+          const startPoint = scaleCoordinate(qubitOperations[cindex].getLocation())
+          const endPoint = scaleCoordinate(qubitOperations[tindex].getLocation())
+          if (startPoint && endPoint) {
+            ctx.beginPath();
+            ctx.moveTo(startPoint.x, startPoint.y);
+            ctx.lineTo(endPoint.x, endPoint.y);
+            ctx.lineWidth = "10px"; 
+            ctx.stroke();
+          }
+        }
+      })
+    } );
+  }, [qubitOperations, twoQubitOperations, coordDimension, highestX, highestY, qubitSize, coordsGivenCoordSys]);
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div style={{ position: "relative"}}>
       <canvas
         ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={canvasWidth}
+        height={canvasHeight}
         style={{
           position: "absolute",
           top: 0,
           left: 0,
           zIndex: 0,
+          width: `${canvasWidth}px`,
+          height:`${canvasHeight}px`,
         }}
       />
-      {points.map((point, index) => (
-        PotentialQubitButton(index = index,point = point,onClicked = onClicked(point),size = max(8 - ({dimension}/2), 4))
+      <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+        }}>
+      {qubitOperations.map((qubit, index ) => (
+        < OperationQubitButton key = {index} point={scaleCoordinate(qubit.getLocation())} onClicked = {onClicked} qubit = {qubit} amSelected = {qubit.getid() === qubitToCopy || qubit.getid() === controlQubit} qubitSize = {qubitSize} />
       ))}
+      </div>
     </div>
   );
 };
