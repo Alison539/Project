@@ -7,16 +7,12 @@ export class Qubit {
     constructor(coordinates, index) {
         this.location = coordinates;
         this.id = index;
-        this.class = null;
         this.logical_observalble = false;
-        this.label = "";
     }
     qubitFromCopy(qubit, newid) {
         this.location = qubit.getLocation();
         this.id = newid;
-        this.class = qubit.getClass();
         this.logical_observalble = qubit.getLogicalObservable();
-        this.label = qubit.getLabel();
     }
     getid() {
         return (this.id);
@@ -27,20 +23,8 @@ export class Qubit {
     getLogicalObservable() {
         return (this.logical_observalble);
     }
-    getClass() {
-        return (this.class);
-    }
-    getLabel() {
-        return (this.label);
-    }
-    setClass(classId) {
-        this.class = classId;
-    }
     setLogicalObservable() {
         this.logical_observalble = !this.logical_observalble;
-    }
-    setLabel(label) {
-        this.label = label;
     }
 }
 

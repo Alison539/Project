@@ -4,21 +4,16 @@ export const DetailsContext = createContext();
 
 export const DetailsProvider = ({ children }) => {
     const [numCycles, setNumCycles] = useState(3);
-    
-    const[singleGateDepolarization, setSingleGateDepolarization] = useState(0);
-    const[twoGateDepolarization, setTwoGateDepolarization] = useState(0);
-    const[measureFlipProbs, setMeasureFlipProbs] = useState(0)
-    const[roundFlipProbs, setRoundFlipProbs] = useState(0)
-    const[resetFlipProbs, setResetFlipProbs] = useState(0)
-    
+    const [noises, setNoises] = useState([0,0,0,0,0])
 
+    const setNoiseIndex = (newNoise, index) => {
+        let newNoises = [...noises];
+        newNoises[index] = newNoise;
+        setNoises(newNoises)
+    }
+    
     return (
-        <DetailsContext.Provider value={{ numCycles, setNumCycles, 
-        singleGateDepolarization, setSingleGateDepolarization, 
-        twoGateDepolarization, setTwoGateDepolarization, 
-        measureFlipProbs, setMeasureFlipProbs, 
-        roundFlipProbs, setRoundFlipProbs, 
-        resetFlipProbs, setResetFlipProbs }}>
+        <DetailsContext.Provider value={{ numCycles, setNumCycles, noises, setNoiseIndex}}>
             {children}
         </DetailsContext.Provider>
     );

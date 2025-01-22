@@ -11,6 +11,7 @@ import { CoordinateSystemProvider } from "./contexts/CoordinateSystemContext";
 import { QubitProvider } from "./contexts/QubitContext";
 import { OperationProvider } from "./contexts/OperationContext";
 import { DetailsProvider } from "./contexts/DetailsContext";
+import { StimCodeProvider } from "./contexts/StimCodeContext";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
       <QubitProvider>
         <OperationProvider>
           <DetailsProvider>
+            <StimCodeProvider>
             <div className="main">
               <Router>
                 <Routes>
@@ -32,6 +34,7 @@ function App() {
               </Router>
 
             </div>
+            </StimCodeProvider>
           </DetailsProvider>
         </OperationProvider>
       </QubitProvider>

@@ -5,9 +5,10 @@ import { CoordinateSystemContext } from "./CoordinateSystemContext";
 export const OperationContext = createContext();
 
 class QubitOperation {
-    constructor(coordinates, index) {
-        this.location = coordinates;
-        this.id = index;
+    constructor(qubit, index) {
+        this.location = qubit.getLocation();
+        this.id = index ? index : qubit.getid();
+        this.logical_observalble = qubit.getLogicalObservable();
         this.hadamard = 0;
         this.measurement = 0;
     }
@@ -16,6 +17,9 @@ class QubitOperation {
     }
     getLocation() {
         return (this.location);
+    }
+    getLogicalObservable() {
+        return (this.logical_observable)
     }
     getHadamard() {
         return (this.hadamard);
@@ -61,7 +65,7 @@ export const OperationProvider = ({ children }) => {
             return newCoordsToIndeces;
         })
         setQubitOperations(qubits.map((qubit, index) => {
-            const newQop = new QubitOperation(qubit.location, index);
+            const newQop = new QubitOperation(qubit, index);
             return newQop;
         }))
         const newTwoQubitOperations = new Array(qlength);
@@ -79,7 +83,7 @@ export const OperationProvider = ({ children }) => {
         setQubitOperations((previousQubits) => {
             const updatedQubits = previousQubits.map((q, index) => {
                 if (index === qubitOpID) {
-                    const newQuOp = new QubitOperation(qubitOp.getLocation(), qubitOpID)
+                    const newQuOp = new QubitOperation(qubitOp)
                     return newQuOp;
                 }
                 else { return q };
@@ -132,7 +136,7 @@ export const OperationProvider = ({ children }) => {
         setQubitOperations((previousQubits) => {
             const updatedQubits = previousQubits.map((q, index) => {
                 if (index === qubitToPasteID) {
-                    const newQuOp = new QubitOperation(original.getLocation(), qubitToPasteID)
+                    const newQuOp = new QubitOperation(original)
                     newQuOp.copyHadamardMeasurement(copy)
                     return newQuOp;
                 }
@@ -162,7 +166,7 @@ export const OperationProvider = ({ children }) => {
         setQubitOperations((previousQubits) => {
             const updatedQubits = previousQubits.map((q, index) => {
                 if (index === qubitOpID) {
-                    const newQuOp = new QubitOperation(qubitOp.getLocation(), qubitOpID)
+                    const newQuOp = new QubitOperation(qubitOp)
                     newQuOp.setHadamard(hadamardValue, qubitOp)
                     return newQuOp;
                 }
@@ -177,7 +181,7 @@ export const OperationProvider = ({ children }) => {
         setQubitOperations((previousQubits) => {
             const updatedQubits = previousQubits.map((q, index) => {
                 if (index === qubitOpID) {
-                    const newQuOp = new QubitOperation(qubitOp.getLocation(), qubitOpID)
+                    const newQuOp = new QubitOperation(qubitOp)
                     newQuOp.setMeasurement(measurement, qubitOp)
                     return newQuOp;
                 }
