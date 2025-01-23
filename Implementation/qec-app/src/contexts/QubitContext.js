@@ -35,16 +35,6 @@ export const QubitProvider = ({ children }) => {
     const [highestX, setHighestX] = useState(0);
     const [highestY, setHighestY] = useState(0);
 
-    function updateHighest(coords) {
-        const actualCoords = coordsGivenCoordSys(coords)
-        if (actualCoords.x > highestX) {
-            setHighestX(coords.x)
-        }
-        if (actualCoords.y > highestY) {
-            setHighestY(coords.y)
-        }
-    }
-
     const addQubit = (coordinates, index) => {
         const newQubit = new Qubit(coordinates, index);
         setQubits((previousQubits) => [...previousQubits, newQubit]);
@@ -72,22 +62,24 @@ export const QubitProvider = ({ children }) => {
             return updatedQubits;
         })
     }
-    const makeIdsConsecutive = () => {
-        setQubits((previousQubits) => {
-            const updatedQubits = previousQubits.map((q, newid) => {
-                updateHighest(q.getLocation())
-                const newQ = new Qubit(q.getLocation(), newid);
-                newQ.qubitFromCopy(q, newid);
-                return newQ;
+    const findHighest = () => {
+        let maxX = 0;
+        let maxY = 0;
+        qubits.forEach((q) => {
+            let coords = coordsGivenCoordSys(q.getLocation())
+            if (coords.x > maxX) {
+                maxX = coords.x
             }
-            );
-            return updatedQubits;
+            if (coords.y > maxY) {
+                maxY = coords.y
+            }
         })
-
+        setHighestX(maxX)
+        setHighestY(maxY)
     }
 
     return (
-        <QubitContext.Provider value={{ qubits, addQubit, removeQubit, resetQubits, setLogicalObservablePerQubit, makeIdsConsecutive, highestX, highestY }}>
+        <QubitContext.Provider value={{ qubits, addQubit, removeQubit, resetQubits, setLogicalObservablePerQubit, findHighest, highestX, highestY }}>
             {children}
         </QubitContext.Provider>
     );

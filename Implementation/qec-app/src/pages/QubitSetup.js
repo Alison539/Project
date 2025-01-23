@@ -68,7 +68,7 @@ function potentialQubitLocations(coordSys, coordDimension) {
 
 const QubitSetup = () => {
   const { coordSys, coordDimension, coordsGivenCoordSys} = useContext(CoordinateSystemContext);
-  const {qubits, addQubit, removeQubit, setLogicalObservablePerQubit, makeIdsConsecutive} = useContext(QubitContext)
+  const {qubits, addQubit, removeQubit, setLogicalObservablePerQubit, findHighest} = useContext(QubitContext)
   const {instantiate} = useContext(OperationContext)
 
   const navigate = useNavigate();
@@ -119,7 +119,7 @@ const QubitSetup = () => {
   }
 
   const handleNext = () => {
-    makeIdsConsecutive();
+    findHighest();
     instantiate();
     navigate("/Rounds");
   }
