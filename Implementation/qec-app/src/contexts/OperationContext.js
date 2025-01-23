@@ -7,8 +7,8 @@ export const OperationContext = createContext();
 class QubitOperation {
     constructor(qubit, index) {
         this.location = qubit.getLocation();
-        this.id = index ? index : qubit.getid();
-        this.logical_observalble = qubit.getLogicalObservable();
+        this.id = (index !== undefined) ? index : qubit.getid();
+        this.logical_observable = qubit.getLogicalObservable();
         this.hadamard = 0;
         this.measurement = 0;
     }
@@ -192,7 +192,6 @@ export const OperationProvider = ({ children }) => {
     }
 
     const addTwoQubitOp = (controlID, targetID, timestep) => {
-        console.log(controlID,targetID)
         const newTwoQubitOperations = new Array(length);
         for (let i = 0; i < length; i++) {
             newTwoQubitOperations[i] = new Array(length);
@@ -202,7 +201,6 @@ export const OperationProvider = ({ children }) => {
         }
         const oldList = twoQubitOperations[controlID][targetID]
         newTwoQubitOperations[controlID][targetID] = [...new Set([...oldList, timestep])]
-        console.log(newTwoQubitOperations[controlID][targetID])
 
         setTwoQubitOperations(newTwoQubitOperations)
     }

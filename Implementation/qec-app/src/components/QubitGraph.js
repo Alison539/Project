@@ -14,14 +14,16 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
   const coordDimension = max(highestX + 1, highestY + 1)
   const qubitSize = max(30 - (coordDimension), 4)
 
-  const canvasWidth = ((highestX * 1.5) * (30 - coordDimension) * 2) + qubitSize * 2;
-  const canvasHeight = ((highestY) * (30 - coordDimension) * 2) + qubitSize * 2;
+  const canvasWidth = ((highestX * 1.5) * (30 - highestX) * 2) + qubitSize * 2;
+  const canvasHeight = ((highestY) * (30 - highestY) * 2) + qubitSize * 2;
+  console.log(canvasHeight,canvasWidth)
+  console.log(highestX, highestY)
 
   const scaleCoordinate = (point) => {
     const actualCoords = coordsGivenCoordSys(point)
     return ({
-      x: ((actualCoords.x + highestX / 9) * (30 - coordDimension) * 2),
-      y: ((actualCoords.y) * (30 - coordDimension) * 2),
+      x: ((actualCoords.x + highestX / 9) * (30 - highestX) * 2),
+      y: ((actualCoords.y) * (30 - highestY) * 2),
     })
   }
 
@@ -34,8 +36,8 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
       function scaleLineCoords(point) {
         const actualCoords = coordsGivenCoordSys(point)
         return ({
-          x: ((actualCoords.x + (highestX / 9)) * (30 - coordDimension) * 2) + qubitSize / 2,
-          y: ((actualCoords.y) * (30 - coordDimension) * 2) + qubitSize / 2,
+          x: ((actualCoords.x + (highestX / 9)) * (30 - highestX) * 2) + qubitSize / 2,
+          y: ((actualCoords.y) * (30 - highestY) * 2) + qubitSize / 2,
         })
       }
 
@@ -60,8 +62,6 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
         x: controlPoint.x + (dx * proportionalLength),
         y: controlPoint.y + (dy * proportionalLength)
       }
-      console.log(control,target)
-      console.log(controlPoint, targetPoint)
 
       return ([controlPoint, targetPoint])
     }
@@ -128,7 +128,7 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
         }
       })
     });
-  }, [qubitOperations, twoQubitOperations, coordDimension, highestX, highestY, qubitSize, coordsGivenCoordSys]);
+  }, [qubitOperations, twoQubitOperations, highestX, highestY, qubitSize, coordsGivenCoordSys]);
 
   return (
     <div style={{ position: "relative" }}>
@@ -141,8 +141,6 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
           top: 0,
           left: 0,
           zIndex: 0,
-          width: `${canvasWidth}px`,
-          height: `${canvasHeight}px`,
         }}
       />
       <div style={{

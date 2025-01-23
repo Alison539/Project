@@ -72,6 +72,15 @@
     align-self: center
   }
 
+  .code_container {
+    border: 1.5px solid var(--dark-text);
+    margin: 3%;
+    margin-left: 15%;
+    margin-right: 15%;
+    padding: 10px;
+    justify-content: center;
+  }
+
   .centralised-menu-option {
     border-bottom: 1.5px solid #2a363b;
     padding: 10px;

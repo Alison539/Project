@@ -58,7 +58,7 @@ const SelectCoordinateSystem = () => {
 
 
   const handleDimensionInputChange = (e) => {
-    setDimension(e.target.value);
+    setDimension(parseInt(e.target.value));
   }
 
   const handleSelection = (index) => {

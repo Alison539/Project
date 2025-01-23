@@ -35,7 +35,7 @@ const SetDetails = () => {
   const navigate = useNavigate()
 
   const handleNoiseChange = (e, index) => {
-    setNoiseIndex(e.target.value, index);
+    setNoiseIndex(parseFloat(e.target.value), index);
   }
 
   const handleNext = () => {
@@ -48,26 +48,31 @@ const SetDetails = () => {
         }
       }
     })
-    if (!errorOccurred && (numCycles < 1 || numCycles > 1000 || !(Number.isInteger(Number(numCycles))))) {
-      alert("Please choose a whole number of repetitions between 1 and 1000");
+    if (!errorOccurred && (numCycles < 1 || numCycles > 1000)) {
+      alert("Please choose a number of repetitions between 1 and 1000");
       errorOccurred = true;
     }
     if (!errorOccurred) {
 
-      let formData = new FormData();
-      formData.append("coordSys", coordSys)
-      formData.append("qubitOperations", qubitOperations)
-      formData.append("twoQubitOperations", twoQubitOperations)
-      formData.append("noise", noises)
-      formData.append("numCycles", numCycles)
+      const payload = {
+        coordSys: coordSys,
+        qubitOperations: qubitOperations,
+        twoQubitOperations: twoQubitOperations,
+        noise: noises,
+        numCycles: numCycles,
+      };
 
       axios({
         url: "http://127.0.0.1:5000/api/qec_data",
         method: "POST",
-        data: formData,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        data: JSON.stringify(payload),
       })
-        .then((res) => {
-          setStimCode(res.data.stimcode);
+        .then((response) => {
+          console.log(response.data)
+          setStimCode(response.data.stimcode);
           navigate("/Output_code");
         })
         .catch((err) => { console.error("Error communicating with the backend:", err) })
@@ -91,7 +96,7 @@ const SetDetails = () => {
         <div className="menu-option">
           <div className="details-option">
             <p> Number of times rounds are repeated: </p>
-            <input className="details-input" id="repeats" max="1000" min="1" value={numCycles} type="number" onChange={(e) => { setNumCycles(e.target.value) }} />
+            <input className="details-input" id="repeats" max="1000" min="1" value={numCycles} type="number" onChange={(e) => { setNumCycles(parseInt(e.target.value)) }} />
           </div>
         </div>
       </div>
