@@ -50,7 +50,7 @@ export const OperationProvider = ({ children }) => {
     const [length, setLength] = useState(0);
     const [coordsToIndeces, setCoordsToIndeces] = useState(undefined);
 
-    function makeCoordsStrings(coords){
+    function makeCoordsStrings(coords) {
         return (`${coords.x}_${coords.y}`);
     }
 
@@ -116,12 +116,12 @@ export const OperationProvider = ({ children }) => {
         const newFocus = qubitOperations[newFocusID].getLocation()
         let newX = newFocus.x + (oldNeighbour.x - oldFocus.x)
         let newY = newFocus.y + (oldNeighbour.y - oldFocus.y)
-        if (coordSys === 1 && (newFocus.y % 2) !== (oldFocus.y % 2)){
-            if ((oldNeighbour.y - oldFocus.y) !== 0){
-                if (oldFocus.y % 2 === 0){
+        if (coordSys === 1 && (newFocus.y % 2) !== (oldFocus.y % 2)) {
+            if ((oldNeighbour.y - oldFocus.y) !== 0) {
+                if (oldFocus.y % 2 === 0) {
                     newX += 1
                 }
-                else{
+                else {
                     newX -= 1
                 }
             }
@@ -192,17 +192,19 @@ export const OperationProvider = ({ children }) => {
     }
 
     const addTwoQubitOp = (controlID, targetID, timestep) => {
-        const newTwoQubitOperations = new Array(length);
-        for (let i = 0; i < length; i++) {
-            newTwoQubitOperations[i] = new Array(length);
-            for (let j = 0; j < length; j++) {
-                newTwoQubitOperations[i][j] = [...twoQubitOperations[i][j]]
+        if (controlID !== targetID) {
+            const newTwoQubitOperations = new Array(length);
+            for (let i = 0; i < length; i++) {
+                newTwoQubitOperations[i] = new Array(length);
+                for (let j = 0; j < length; j++) {
+                    newTwoQubitOperations[i][j] = [...twoQubitOperations[i][j]]
+                }
             }
-        }
-        const oldList = twoQubitOperations[controlID][targetID]
-        newTwoQubitOperations[controlID][targetID] = [...new Set([...oldList, timestep])]
+            const oldList = twoQubitOperations[controlID][targetID]
+            newTwoQubitOperations[controlID][targetID] = [...new Set([...oldList, timestep])]
 
-        setTwoQubitOperations(newTwoQubitOperations)
+            setTwoQubitOperations(newTwoQubitOperations)
+        }
     }
 
     return (

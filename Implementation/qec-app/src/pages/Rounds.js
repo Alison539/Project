@@ -4,6 +4,7 @@ import TopBanner from "../components/TopBanner";
 import { OperationContext } from "../contexts/OperationContext";
 import supportMessages from "../resources/supportMessages";
 import QubitGraph from "../components/QubitGraph";
+import QubitGateButton from "../components/QubitGateButton";
 
 const Rounds = () => {
   const { deleteOperations, replicateQubitOps, setHadamard, setMeasurement, addTwoQubitOp } = useContext(OperationContext);
@@ -44,6 +45,12 @@ const Rounds = () => {
         setMeasurement(qubitID, 1);
         break;
       case 5:
+        setMeasurement(qubitID, 2);
+        break;
+      case 6:
+        setMeasurement(qubitID, 3);
+        break;
+      case 7:
         if (qubitToCopy === null) {
           setQubitToCopy(qubitID);
         }
@@ -51,7 +58,7 @@ const Rounds = () => {
           replicateQubitOps(qubitToCopy, qubitID);
         }
         break;
-      case 6:
+      case 8:
         deleteOperations(qubitID);
         break;
       default:
@@ -81,10 +88,11 @@ const Rounds = () => {
           <div className="menu-option">
             <p>Add qubit operations</p>
             <ul>
-              <li><button className="option-button" style={{ backgroundColor: currentOperation === 1 ? "#6aa768" : "#91e48e" }} onClick={() => onSelectOperation(1)}>H</button></li>
-              <li><button className="option-button" style={{ backgroundColor: currentOperation === 2 ? "#915be7" : "#af8ee4" }} onClick={() => onSelectOperation(2)}> H_YZ</button></li>
-              <li><button className="option-button" style={{ backgroundColor: currentOperation === 3 ? "#668265" : "#b5c9b4" }} onClick={() => onSelectOperation(3)}>CNOT</button></li>
-              <li><button className="option-button" style={{ backgroundColor: currentOperation === 4 ? "#668265" : "#b5c9b4", borderWidth: "4px" }} onClick={() => onSelectOperation(4)}>MR</button></li>
+              {[1,2,3,4,5,6].map((index) => (
+                <li>
+                  <QubitGateButton currentOperation={currentOperation} onSelectOperation={onSelectOperation} index={index} />
+                </li>
+              ))}
             </ul>
           </div>
           <div className="centralised-menu-option">
@@ -93,10 +101,10 @@ const Rounds = () => {
             <button className="small-circular-button" onClick={incrementTime}>+</button>
           </div>
           <div className="centralised-menu-option">
-            <button className="option-button" style={{ backgroundColor: currentOperation === 5 ? "#668265" : "#b5c9b4" }} onClick={() => onSelectOperation(5)} >Copy Operations</button>
+            <button className="option-button" style={{ backgroundColor: currentOperation === 7 ? "#668265" : "#b5c9b4" }} onClick={() => onSelectOperation(7)} >Copy Operations</button>
           </div>
           <div className="centralised-menu-option">
-            <button className="option-button" style={{ backgroundColor: currentOperation === 6 ? "#668265" : "#b5c9b4" }} onClick={() => onSelectOperation(6)}>Delete Operations</button>
+            <button className="option-button" style={{ backgroundColor: currentOperation === 8 ? "#668265" : "#b5c9b4" }} onClick={() => onSelectOperation(8)}>Delete Operations</button>
           </div>
         </div>
 
