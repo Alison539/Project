@@ -1,7 +1,7 @@
 import React from "react";
 import "./styles.css"
 
-const PotentialQubitButton = ({point, onClicked, qubitSize, zIndex, qubitcolor, onClickedParameters, border}) => {
+const PotentialQubitButton = ({point, onClicked, qubitSize, zIndex, qubitcolor, onClickedParameters, border, onHover}) => {
   return (
     <button
         style={{
@@ -21,6 +21,8 @@ const PotentialQubitButton = ({point, onClicked, qubitSize, zIndex, qubitcolor, 
         backgroundColor: `#${qubitcolor}`,
         }}
         onClick={() => onClicked(onClickedParameters)}
+        onMouseEnter={() => 
+          {if (onHover) {onHover(onClickedParameters)}}}
     />
   );
 };
