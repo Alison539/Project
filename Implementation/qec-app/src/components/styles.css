@@ -95,8 +95,16 @@
   .details-option {
     display: flex;
     justify-content: space-between;
-    margin-top: 0;
+    margin: 2px;
     padding: 0;
+  }
+
+  .no-space {
+    margin: 0;
+  }
+  .title-no-space {
+    margin: 3px;
+    size: 25px;
   }
 
   .details-input {
@@ -104,6 +112,7 @@
     border-radius: 5%;
     text-align: center;
     align-self: center;
+    margin: 0;
 
   }
 

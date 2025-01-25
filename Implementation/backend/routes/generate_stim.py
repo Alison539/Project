@@ -2,12 +2,18 @@ from typing import List, Dict
 import stim
 import math
 
+error = ["X_ERROR","Z_ERROR","Y_ERROR"]
+measure_reset = ["MR","MRX","MRY"]
+reset = ["R","RX","RY"]
+
 # currently all inputs are directly accessible apart from qubit operations - which is accessible as a map
 def generate_stim(coord_sys: int,       
     qubit_operations: List[Dict],
     two_qubit_operations: List[List[List[int]]],
     noise: List[float],
-    num_cycles: int):
+    num_cycles: int,
+    name: str,
+    basis: int):
 
     def translate_coordinates(location_dict: Dict):
         x = location_dict.get("x")
@@ -20,9 +26,7 @@ def generate_stim(coord_sys: int,
     num_qubits: int = len(qubit_operations)
 
     data_qubits: List[int] = []
-    measurement_qubits_z: List[int] = []
-    measurement_qubits_x: List[int] = []
-    measurement_qubits_y: List[int] = []
+    measure_qubits = [[],[],[]]
     x_qubits: List[int] = []
     y_qubits: List[int] = []
     logical_observable_qubits: List[int] = []
@@ -32,12 +36,9 @@ def generate_stim(coord_sys: int,
         measurement = qubit_info.get("measurement")
         if measurement == 0:
             data_qubits.append(i)
-        elif measurement == 1:
-            measurement_qubits_z.append(i)
-        elif measurement == 2:
-            measurement_qubits_x.append(i)
-        elif measurement == 3:
-            measurement_qubits_y.append(i)
+        else:
+            measure_qubits[measurement - 1].append(i)
+
         qubit_type = qubit_info.get("hadamard")
         if qubit_type == 1:
             x_qubits.append(i)
@@ -46,14 +47,13 @@ def generate_stim(coord_sys: int,
         if qubit_info.get("logical_observable"):
             logical_observable_qubits.append(i)
 
-    num_z_measures = len(measurement_qubits_z)
-    num_x_measures = len(measurement_qubits_x)
-    num_y_measures = len(measurement_qubits_y)
+    num_data_qubits = len(data_qubits)
+    num_qubit_measures = [len(measure_qubits[i]) for i in [0,1,2]]
     num_x_qubits = len(x_qubits)
     num_y_qubits = len(y_qubits)
     num_logical_observable = len(logical_observable_qubits)
 
-    measurement_qubits = measurement_qubits_z + measurement_qubits_x + measurement_qubits_y
+    measurement_qubits = measure_qubits[0] + measure_qubits[1] + measure_qubits[2]
     measurements_per_cycle = len(measurement_qubits)
 
 
@@ -68,9 +68,6 @@ def generate_stim(coord_sys: int,
                     cnot_operations[time - 1].append(i)
                     cnot_operations[time - 1].append(j)
     
-    
-
-
     def generate_circuit_round(detectors: bool):
         circuit = stim.Circuit()
 
@@ -99,20 +96,11 @@ def generate_stim(coord_sys: int,
             if noise[0] > 0: circuit.append_operation("DEPOLARIZE1", x_qubits + y_qubits, noise[0])
             circuit.append_operation("TICK")
 
-        if (num_z_measures > 0):
-            if noise[2] > 0 : circuit.append_operation("X_ERROR", measurement_qubits_z, noise[2])
-            circuit.append_operation("MR", measurement_qubits_z)
-            if noise[4] > 0 : circuit.append_operation("X_ERROR", measurement_qubits_z, noise[4])
-
-        if (num_x_measures > 0):
-            if noise[2] > 0 : circuit.append_operation("Z_ERROR", measurement_qubits_x, noise[2])
-            circuit.append_operation("MRX", measurement_qubits_x)
-            if noise[4] > 0 : circuit.append_operation("Z_ERROR", measurement_qubits_x, noise[4])
-
-        if (num_y_measures > 0):
-            if noise[2] > 0 : circuit.append_operation("Y_ERROR", measurement_qubits_y, noise[2])
-            circuit.append_operation("MRY", measurement_qubits_y)
-            if noise[4] > 0 : circuit.append_operation("Y_ERROR", measurement_qubits_y, noise[4])
+        for i in range(0,3):
+            if (num_qubit_measures[i] > 0):
+                if noise[2] > 0 : circuit.append_operation(error[i], measure_qubits[i], noise[2])
+                circuit.append_operation(measure_reset[i], measure_qubits[i])
+                if noise[4] > 0 : circuit.append_operation(error[i], measure_qubits[i], noise[4])
         
         for m in range(0, measurements_per_cycle):
             record_target = []
@@ -128,7 +116,23 @@ def generate_stim(coord_sys: int,
 
         return circuit
 
-
+    def get_relative_indeces_for_basis_detectors(basis, index_within_basis_measure_qubits, m):
+        relative_indeces = []
+        relative_index = index_within_basis_measure_qubits - num_data_qubits
+        for j in range(basis, 3):
+            relative_index -= num_qubit_measures[j]
+        relative_indeces.append(stim.target_rec(relative_index))
+        for j in range(0, num_qubits):
+            timesteps = two_qubit_operations[j][m]
+            if len(timesteps) > 0:
+                if j in data_qubits:               
+                    relative_indeces.append(stim.target_rec(data_qubits.index(j)  - num_data_qubits))
+            timesteps = two_qubit_operations[m][j]
+            if len(timesteps) > 0:
+                if j in data_qubits:
+                    relative_indeces.append(stim.target_rec(data_qubits.index(j)   - num_data_qubits))
+        return relative_indeces
+    
     full_circuit = stim.Circuit()
 
     for i in range(0, num_qubits):
@@ -136,14 +140,12 @@ def generate_stim(coord_sys: int,
         full_circuit.append_operation("QUBIT_COORDS", [i], coords)
 
     
-    full_circuit.append_operation("R", data_qubits + measurement_qubits_z )
-    if noise[4] > 0: full_circuit.append_operation("X_ERROR", data_qubits + measurement_qubits_z , noise[4])
-    if num_x_measures > 0:
-        full_circuit.append_operation("RX", measurement_qubits_x )
-        if noise[4] > 0: full_circuit.append_operation("Z_ERROR", measurement_qubits_x , noise[4])
-    if num_y_measures > 0:
-        full_circuit.append_operation("RY", measurement_qubits_y )
-        if noise[4] > 0: full_circuit.append_operation("Y_ERROR", measurement_qubits_y , noise[4])
+    full_circuit.append_operation("R", data_qubits + measure_qubits[0] )
+    if noise[4] > 0: full_circuit.append_operation("X_ERROR", data_qubits + measure_qubits[0] , noise[4])
+    for i in [1,2]:
+        if num_qubit_measures[i] > 0:
+            full_circuit.append_operation(reset[i], measure_qubits[i] )
+            if noise[4] > 0: full_circuit.append_operation(error[i], measure_qubits[i] , noise[4])
     
     round_circuit_no_detectors = generate_circuit_round(detectors = False)
     round_circuit_yes_detectors = generate_circuit_round(detectors = True)
@@ -156,12 +158,33 @@ def generate_stim(coord_sys: int,
     if noise[2] > 0: full_circuit.append_operation("X_ERROR",data_qubits,noise[2])
     full_circuit.append_operation("M",data_qubits)
 
-    # TODO: if add basis then add detectors on all measurements that are in that basis
+    
+    
+    for i in [0,1,2]:
+        if basis == (i + 1):
+            if (num_qubit_measures[i] > 0):
+                for index,m in enumerate(measure_qubits[i]):
+                    if i != 0 or (m not in x_qubits and m not in y_qubits):
+                        relative_indeces = get_relative_indeces_for_basis_detectors(i, index, m)
+                        coords = translate_coordinates(qubit_operations[m].get("location"))
+                        full_circuit.append_operation("DETECTOR",relative_indeces, coords + [0])
+    if basis == 1:
+        if (num_x_qubits > 0):
+            for m in x_qubits:
+                relative_indeces = get_relative_indeces_for_basis_detectors(0, measure_qubits[0].index(m), m)
+                coords = translate_coordinates(qubit_operations[m].get("location"))
+                full_circuit.append_operation("DETECTOR",relative_indeces, coords + [0])
+    elif basis == 2:
+        if (num_y_qubits > 0):
+            for m in y_qubits:
+                relative_indeces = get_relative_indeces_for_basis_detectors(0, measure_qubits[0].index(m), m)
+                coords = translate_coordinates(qubit_operations[m].get("location"))
+                full_circuit.append_operation("DETECTOR",relative_indeces, coords + [0])
 
     relative_indeces = []
     for q in logical_observable_qubits:
-        # TODO: currently relies on fact that no measurement qubits are part of the logical observable (which is the only option that makes sense)
-        relative_indeces.append(stim.target_rec(data_qubits.index(q) - len(data_qubits)))
+        if q not in measurement_qubits:
+            relative_indeces.append(stim.target_rec(data_qubits.index(q) - len(data_qubits)))
     if num_logical_observable   > 0:
         full_circuit.append_operation("OBSERVABLE_INCLUDE", relative_indeces, 0)
 

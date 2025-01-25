@@ -5,6 +5,8 @@ export const DetailsContext = createContext();
 export const DetailsProvider = ({ children }) => {
     const [numCycles, setNumCycles] = useState(3);
     const [noises, setNoises] = useState([0,0,0,0,0])
+    const [name, setName] = useState("");
+    const [basis, setBasis] = useState(0)
 
     const setNoiseIndex = (newNoise, index) => {
         let newNoises = [...noises];
@@ -13,7 +15,7 @@ export const DetailsProvider = ({ children }) => {
     }
     
     return (
-        <DetailsContext.Provider value={{ numCycles, setNumCycles, noises, setNoiseIndex}}>
+        <DetailsContext.Provider value={{ numCycles, setNumCycles, noises, setNoiseIndex, name, setName, basis, setBasis}}>
             {children}
         </DetailsContext.Provider>
     );

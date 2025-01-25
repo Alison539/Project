@@ -16,10 +16,12 @@ def qec_data():
     two_qubit_operations = data.get("twoQubitOperations",[])
     noise = data.get("noise",[])
     num_cycles = data.get("numCycles")
+    basis = data.get("basis")
+    name = data.get("name")
 
     toReturn = ""
     with open('new_circuit.txt', 'w') as f:
-        circuit = generate_stim(coord_sys=coord_sys, qubit_operations=qubit_operations, two_qubit_operations=two_qubit_operations,noise=noise,num_cycles=num_cycles)
+        circuit = generate_stim(coord_sys=coord_sys, qubit_operations=qubit_operations, two_qubit_operations=two_qubit_operations,noise=noise,num_cycles=num_cycles,name=name,basis=basis)
         with redirect_stdout(f):
             print(circuit)
     with open('new_circuit.txt', 'r') as f:
