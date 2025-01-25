@@ -87,6 +87,15 @@
     display: flex;
     justify-content: center;
   }
+ 
+  .menu-details-option {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px;
+    border-bottom: 1.5px solid #2a363b;
+    padding: 10px;
+  }
+
   .menu-option {
     border-bottom: 1.5px solid #2a363b;
     padding: 10px;

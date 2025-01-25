@@ -27,7 +27,7 @@ function noiseName(index) {
 }
 
 const SetDetails = () => {
-  const { numCycles, setNumCycles, noises, setNoiseIndex, name, setName, basis, setBasis} = useContext(DetailsContext)
+  const { numCycles, setNumCycles, noises, setNoiseIndex, name, setName, basis, setBasis } = useContext(DetailsContext)
   const { coordSys } = useContext(CoordinateSystemContext)
   const { qubitOperations, twoQubitOperations } = useContext(OperationContext)
   const { setStimCode } = useContext(StimCodeContext)
@@ -73,7 +73,6 @@ const SetDetails = () => {
         data: JSON.stringify(payload),
       })
         .then((response) => {
-          console.log(response.data)
           setStimCode(response.data.stimcode);
           navigate("/Output_code");
         })
@@ -95,32 +94,26 @@ const SetDetails = () => {
             </div>
           ))}
         </div>
-        <div className="menu-option">
-          <div className="details-option">
-            <p className="no-space"> Number of times rounds are repeated: </p>
-            <input className="details-input" id="repeats" max="1000" min="1" value={numCycles} type="number" onChange={(e) => { setNumCycles(parseInt(e.target.value)) }} />
-          </div>
+        <div className="menu-details-option">
+          <p className="no-space"> Number of times rounds are repeated: </p>
+          <input className="details-input" id="repeats" max="1000" min="1" value={numCycles} type="number" onChange={(e) => { setNumCycles(parseInt(e.target.value)) }} />
         </div>
-        <div className="menu-option">
-          <div className="details-option">
-            <p className="no-space"> Name of error-correction code: </p>
-            <input className="details-input" id="name" value={name} type="text" onChange={(e) => { setName(e.target.value)}} />
-          </div>
+        <div className="menu-details-option">
+          <p className="no-space"> Name of error-correction code: </p>
+          <input className="details-input" id="name" value={name} type="text" onChange={(e) => { setName(e.target.value) }} />
         </div>
-        <div className="menu-option">
-          <div className="details-option">
-            <p> Basis: </p>
-            <form style={{display:"flex"}}>
-              <input name="basis" type="radio" value="None" id="None" checked={basis===0?"checked":null} onClick={() => setBasis(0)} />
-              <label for="None">N/A</label>
-              <input name="basis" type="radio" value="Z" id="Z" checked={basis===1?"checked":null}  onClick={() => setBasis(1)}/>
-              <label for="Z">Z</label>
-              <input name="basis" type="radio" value="X" id="X"  checked={basis===2?"checked":null} onClick={() => setBasis(2)}/>
-              <label for="X">X</label>
-              <input name="basis" type="radio" value="Y" id="Y" checked={basis===3?"checked":null} onClick={() => setBasis(3)}/>
-              <label for="Y">Y</label>
-            </form>
-            </div>
+        <div className="menu-details-option">
+          <p> Basis: </p>
+          <form style={{ display: "flex" }}>
+            <input name="basis" type="radio" value="None" id="None" checked={basis === 0 ? "checked" : null} onClick={() => setBasis(0)} />
+            <label for="None">N/A</label>
+            <input name="basis" type="radio" value="Z" id="Z" checked={basis === 1 ? "checked" : null} onClick={() => setBasis(1)} />
+            <label for="Z">Z</label>
+            <input name="basis" type="radio" value="X" id="X" checked={basis === 2 ? "checked" : null} onClick={() => setBasis(2)} />
+            <label for="X">X</label>
+            <input name="basis" type="radio" value="Y" id="Y" checked={basis === 3 ? "checked" : null} onClick={() => setBasis(3)} />
+            <label for="Y">Y</label>
+          </form>
         </div>
       </div>
 
