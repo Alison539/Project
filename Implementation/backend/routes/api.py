@@ -20,11 +20,14 @@ def qec_data():
     name = data.get("name")
 
     toReturn = ""
-    with open('new_circuit.txt', 'w') as f:
+    try:
         circuit = generate_stim(coord_sys=coord_sys, qubit_operations=qubit_operations, two_qubit_operations=two_qubit_operations,noise=noise,num_cycles=num_cycles,name=name,basis=basis)
-        with redirect_stdout(f):
-            print(circuit)
-    with open('new_circuit.txt', 'r') as f:
-        toReturn = f.read()
+        with open('new_circuit.txt', 'w') as f:
+            with redirect_stdout(f):
+                print(circuit)
+        with open('new_circuit.txt', 'r') as f:
+            toReturn = f.read()
+    except:
+        toReturn = "An error occurred"
     
     return jsonify({"stimcode": (toReturn) })
