@@ -16,8 +16,6 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
 
   const canvasWidth = ((highestX * 1.5) * (30 - highestX) * 2) + qubitSize * 2;
   const canvasHeight = ((highestY) * (30 - highestY) * 2) + qubitSize * 2;
-  console.log(canvasHeight,canvasWidth)
-  console.log(highestX, highestY)
 
   const scaleCoordinate = (point) => {
     const actualCoords = coordsGivenCoordSys(point)

@@ -11,9 +11,9 @@ const GenerateGraph = () => {
     const { coordSys } = useContext(CoordinateSystemContext)
     const { qubitOperations, twoQubitOperations } = useContext(OperationContext)
     
-    const [graph, setGraph] = useState(undefined)
-    const [noiseRange, setNoiseRange] = useState([0.01,0.1]);
-    const [step, setStep] = useState(0.01);
+    const [graphURL, setGraphURL] = useState("")
+    const [noiseRange, setNoiseRange] = useState([0.01,0.02]);
+    const [step, setStep] = useState(0.002);
 
     const setNoiseRangeIndex = (newNoiseBound, index) => {
         let newNoiseRange = [...noiseRange];
@@ -73,11 +73,11 @@ const GenerateGraph = () => {
                 .then((response) => {
                     setIsLoading(false)
                     console.log(response.data)
-                    setGraph(response.data.graph);
+                    setGraphURL(response.data.url);
                 })
-                .catch((err) => {
+                .catch((error) => {
                     setIsLoading(false)
-                    console.error("Error communicating with the backend:", err)
+                    console.error("Error communicating with the backend:", error)
                 })
         }
     }
@@ -91,7 +91,7 @@ const GenerateGraph = () => {
                     <p>Currently the probability of error shall be the same for all types of noise. </p>
                 </div>
                 <div className="menu-details-option">
-                    <p className="no-space"> Range of probability of error to cover (inclusive): </p>
+                    <p className="no-space"> Range of probability of error to cover: </p>
                     <div style={{ display: "flex" }}>
                         <input className="details-input" id="errorProbsLower" step="0.001" max="1" min="0" value={noiseRange[0]} type="number" onChange={(e) => { noiseBoundChange(e, 0) }} />
                         <p className="no-space" style={{ marginLeft: "5px", marginRight: "5px" }}> - </p>
@@ -111,12 +111,10 @@ const GenerateGraph = () => {
                 </div>)
                 :
                 (<div>
-                    {graph ?
-                        (<p> Graph being shown</p>)
-                        : (<div></div>)
+                    {graphURL &&
+                        <img src={graphURL} alt="Generated Graph" width = "60%" style={{marginLeft:"20%", marginTop:"15px"}}/>
                     }
                 </div>)
-
             }
             <NavigationButton label="Back" destinationPage={"/Output_code"} position={{ bottom: "20px", left: "20px" }} />
         </div>
