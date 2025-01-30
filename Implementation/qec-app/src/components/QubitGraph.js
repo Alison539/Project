@@ -8,20 +8,20 @@ import { CoordinateSystemContext } from "../contexts/CoordinateSystemContext";
 const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
   const { coordsGivenCoordSys } = useContext(CoordinateSystemContext)
   const { qubitOperations, twoQubitOperations } = useContext(OperationContext)
-  const { highestX, highestY } = useContext(QubitContext);
+  const { highest} = useContext(QubitContext);
 
   const canvasRef = useRef(null);
-  const coordDimension = max(highestX + 1, highestY + 1)
+  const coordDimension = max(highest[0] + 1, highest[1] + 1)
   const qubitSize = max(30 - (coordDimension), 4)
 
-  const canvasWidth = ((highestX * 1.5) * (30 - highestX) * 2) + qubitSize * 2;
-  const canvasHeight = ((highestY) * (30 - highestY) * 2) + qubitSize * 2;
+  const canvasWidth = ((highest[0] * 1.5) * (30 - highest[0]) * 2) + qubitSize * 2;
+  const canvasHeight = ((highest[1]) * (30 - highest[1]) * 2) + qubitSize * 2;
 
   const scaleCoordinate = (point) => {
     const actualCoords = coordsGivenCoordSys(point)
     return ({
-      x: ((actualCoords.x + highestX / 9) * (30 - highestX) * 2),
-      y: ((actualCoords.y) * (30 - highestY) * 2),
+      x: ((actualCoords.x + highest[0] / 9) * (30 - highest[0]) * 2),
+      y: ((actualCoords.y) * (30 - highest[1]) * 2),
     })
   }
 
@@ -34,8 +34,8 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
       function scaleLineCoords(point) {
         const actualCoords = coordsGivenCoordSys(point)
         return ({
-          x: ((actualCoords.x + (highestX / 9)) * (30 - highestX) * 2) + qubitSize / 2,
-          y: ((actualCoords.y) * (30 - highestY) * 2) + qubitSize / 2,
+          x: ((actualCoords.x + (highest[0] / 9)) * (30 - highest[0]) * 2) + qubitSize / 2,
+          y: ((actualCoords.y) * (30 - highest[1]) * 2) + qubitSize / 2,
         })
       }
 
@@ -126,7 +126,7 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
         }
       })
     });
-  }, [qubitOperations, twoQubitOperations, highestX, highestY, qubitSize, coordsGivenCoordSys]);
+  }, [qubitOperations, twoQubitOperations, highest, qubitSize, coordsGivenCoordSys]);
 
   return (
     <div style={{ position: "relative" }}>

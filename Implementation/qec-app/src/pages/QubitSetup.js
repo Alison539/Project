@@ -68,7 +68,7 @@ function potentialQubitLocations(coordSys, coordDimension) {
 
 const QubitSetup = () => {
   const { coordSys, coordDimension, coordsGivenCoordSys } = useContext(CoordinateSystemContext);
-  const { qubits, addQubit, removeQubit, setLogicalObservablePerQubit, findHighest } = useContext(QubitContext)
+  const { qubits, addQubit, removeQubit, findExtremes } = useContext(QubitContext)
   const { instantiate } = useContext(OperationContext)
 
   const navigate = useNavigate();
@@ -78,28 +78,20 @@ const QubitSetup = () => {
   const highestX = potentialQubitsInformation[1]
   const highestY = potentialQubitsInformation[2]
 
-  const [selectingLogicalObservable, setSelectingLogicalObservable] = useState(false)
   const [hoverSelect, setHoverSelect] = useState(false)
 
   const onPotentialClicked = (parameters) => {
-    if (!selectingLogicalObservable) {
-      addQubit(parameters[0], parameters[1]);
-    }
+    addQubit(parameters[0], parameters[1]);
   }
 
   const onHover = (parameters) => {
-    if (hoverSelect && !selectingLogicalObservable){
+    if (hoverSelect) {
       addQubit(parameters[0], parameters[1])
     }
   }
 
   const onSelectedClicked = (qubit) => {
-    if (selectingLogicalObservable) {
-      setLogicalObservablePerQubit(qubit)
-    }
-    else {
-      removeQubit(qubit);
-    }
+    removeQubit(qubit);
   }
 
   const scaleCoordinate = (point) => {
@@ -110,32 +102,17 @@ const QubitSetup = () => {
     })
   }
 
-  const handleLogicalObservable = () => {
-    setSelectingLogicalObservable(!selectingLogicalObservable);
-  }
-
   const handleHoverSelect = () => {
     setHoverSelect(!hoverSelect)
   }
 
   const qubitSize = max(30 - (coordDimension), 4)
 
-  const determineBorderWidth = (qubit) => {
-    if (qubit.getLogicalObservable()) {
-      return (qubitSize / 8) + 1;
-    }
-    else {
-      return 0;
-    }
-  }
-
   const handleNext = () => {
-    findHighest();
+    findExtremes();
     instantiate();
     navigate("/Rounds");
   }
-
-
 
   return (
     <div className="main">
@@ -144,10 +121,10 @@ const QubitSetup = () => {
       <div style={{ position: "relative", width: "70%", height: "60vh", marginLeft: "10%", marginTop: "3%", border: "1px solid black", display: "flex", justifyContent: "center", alignItems: "center", padding: "3%" }}>
         <div style={{ position: "relative", alignSelf: "center" }}>
           {potentialQubits.map((point, index) => (
-            <PotentialQubitButton key={index} point={scaleCoordinate(point)} onClickedParameters={[point, index]} onClicked={onPotentialClicked} border={0} qubitSize={qubitSize} zIndex="1" qubitcolor="808080" onHover={onHover} />
+            <PotentialQubitButton key={index} point={scaleCoordinate(point)} onClickedParameters={[point, index]} onClicked={onPotentialClicked} border={1} qubitSize={qubitSize} zIndex="1" qubitcolor="808080" onHover={onHover} />
           ))}
           {qubits.map((qubit, index) => (
-            <PotentialQubitButton key={index} point={scaleCoordinate(qubit.getLocation())} onClickedParameters={qubit} onClicked={onSelectedClicked} border={determineBorderWidth(qubit)} qubitSize={qubitSize} zIndex="2" qubitcolor="E84A5F" />
+            <PotentialQubitButton key={index} point={scaleCoordinate(qubit.getLocation())} onClickedParameters={qubit} onClicked={onSelectedClicked} border={1} qubitSize={qubitSize} zIndex="2" qubitcolor="E84A5F" />
           ))}
         </div>
         <button className="navigation-button"
@@ -159,16 +136,6 @@ const QubitSetup = () => {
           }}
           onClick={handleHoverSelect} >
           Hover over qubits to select (o/w click individually)
-        </button>
-        <button className="navigation-button"
-          style={{
-            position: "absolute",
-            right: "0px",
-            bottom: "0px",
-            backgroundColor: selectingLogicalObservable ? "#668265" : "#89a888",
-          }}
-          onClick={handleLogicalObservable} >
-          Select the qubits part of the logical observable
         </button>
       </div>
       <NavigationButton label="Previous" destinationPage={"/"} position={{ bottom: "20px", left: "20px" }} />

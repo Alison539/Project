@@ -16,7 +16,9 @@ const OperationQubitButton = ({point, onClicked, qubitSize, amSelected, qubit}) 
         }
     }
   
-    function getBorder(measurement){
+    function getBorder(qubit){
+        const measurement = qubit.getMeasurement();
+        const logical_observable = qubit.getLogicalObservable();
         const width = (qubitSize/8) + 1
         switch (measurement){
             case 1:
@@ -26,6 +28,9 @@ const OperationQubitButton = ({point, onClicked, qubitSize, amSelected, qubit}) 
             case 3:
                 return (`${width}px solid #350f4a`)            
             default:
+                if (logical_observable) {
+                    return (`${width}px dashed #000000`) 
+                }
                 return 
         }
     }
@@ -44,7 +49,7 @@ const OperationQubitButton = ({point, onClicked, qubitSize, amSelected, qubit}) 
         padding: 0,
         margin: 0,
         cursor: "pointer",
-        border:  getBorder(qubit.getMeasurement()),
+        border:  getBorder(qubit),
         backgroundColor: `#${getColour(qubit.getHadamard())}`,
         }}
         onClick={() => onClicked(qubit.getid())}

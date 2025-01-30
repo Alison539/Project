@@ -7,7 +7,7 @@ import QubitGraph from "../components/QubitGraph";
 import QubitGateButton from "../components/QubitGateButton";
 
 const Rounds = () => {
-  const { deleteOperations, replicateQubitOps, setHadamard, setMeasurement, addTwoQubitOp } = useContext(OperationContext);
+  const {deleteOperations, replicateQubitOps, setHadamard, setMeasurement, addTwoQubitOp, setLogicalObservable} = useContext(OperationContext);
 
   const [currentOperation, setCurrentOperation] = useState(0);
   const [timeStep, setTimeStep] = useState(1);
@@ -61,6 +61,9 @@ const Rounds = () => {
       case 8:
         deleteOperations(qubitID);
         break;
+      case 9:
+        setLogicalObservable(qubitID);
+        break;
       default:
         break;
     }
@@ -105,6 +108,9 @@ const Rounds = () => {
           </div>
           <div className="centralised-menu-option">
             <button className="option-button" style={{ backgroundColor: currentOperation === 8 ? "#668265" : "#b5c9b4" }} onClick={() => onSelectOperation(8)}>Delete Operations</button>
+          </div>
+          <div className="centralised-menu-option">
+            <button className="option-button" style={{ backgroundColor: currentOperation === 9 ? "#668265" : "#b5c9b4", border: "4px dashed #000000" }} onClick={() => onSelectOperation(9)}>Add Logical Observable</button>
           </div>
         </div>
 
