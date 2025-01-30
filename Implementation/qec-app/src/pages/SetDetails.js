@@ -105,13 +105,11 @@ const SetDetails = () => {
         <div className="menu-details-option">
           <p> Basis: </p>
           <form style={{ display: "flex" }}>
-            <input name="basis" type="radio" value="None" id="None" checked={basis === 0 ? "checked" : null} onClick={() => setBasis(0)} />
-            <label for="None">N/A</label>
-            <input name="basis" type="radio" value="Z" id="Z" checked={basis === 1 ? "checked" : null} onClick={() => setBasis(1)} />
+            <input name="basis" type="radio" value="Z" id="Z" checked={basis === 0 ? "checked" : null} onClick={() => setBasis(0)} />
             <label for="Z">Z</label>
-            <input name="basis" type="radio" value="X" id="X" checked={basis === 2 ? "checked" : null} onClick={() => setBasis(2)} />
+            <input name="basis" type="radio" value="X" id="X" checked={basis === 1 ? "checked" : null} onClick={() => setBasis(1)} />
             <label for="X">X</label>
-            <input name="basis" type="radio" value="Y" id="Y" checked={basis === 3 ? "checked" : null} onClick={() => setBasis(3)} />
+            <input name="basis" type="radio" value="Y" id="Y" checked={basis === 2 ? "checked" : null} onClick={() => setBasis(2)} />
             <label for="Y">Y</label>
           </form>
         </div>

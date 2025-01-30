@@ -4,6 +4,7 @@ import math
 
 error = ["X_ERROR","Z_ERROR","Y_ERROR"]
 measure_reset = ["MR","MRX","MRY"]
+measure = ["M","MX","MY"]
 reset = ["R","RX","RY"]
 
 # currently all inputs are directly accessible apart from qubit operations - which is accessible as a map
@@ -103,23 +104,24 @@ def generate_stim(coord_sys: int,
                 if noise[4] > 0 : circuit.append_operation(error[i], measure_qubits[i], noise[4])
         
         for m in range(0, measurements_per_cycle):
+            mqubit_id = measurement_qubits[m]
             record_target = []
             relative_index = m - measurements_per_cycle
             record_target.append(stim.target_rec(relative_index))
             if detectors:
                 record_target.append(stim.target_rec(relative_index - measurements_per_cycle))
-                # TODO: if add basis add detectors if detectors not defined
-                coords = translate_coordinates(qubit_operations[measurement_qubits[m]].get("location"))
+            if detectors or (mqubit_id in measure_qubits[basis]) or (basis == 1 and mqubit_id in x_qubits) or (basis == 2 and mqubit_id in y_qubits):
+                coords = translate_coordinates(qubit_operations[mqubit_id].get("location"))
                 circuit.append_operation("DETECTOR",record_target, coords + [0])
             
         circuit.append_operation("SHIFT_COORDS", [], [0,0,1] )
 
         return circuit
 
-    def get_relative_indeces_for_basis_detectors(basis, index_within_basis_measure_qubits, m):
+    def get_relative_indeces_for_basis_detectors(tbasis, index_within_basis_measure_qubits, m):
         relative_indeces = []
         relative_index = index_within_basis_measure_qubits - num_data_qubits
-        for j in range(basis, 3):
+        for j in range(tbasis, 3):
             relative_index -= num_qubit_measures[j]
         relative_indeces.append(stim.target_rec(relative_index))
         for j in range(0, num_qubits):
@@ -140,9 +142,10 @@ def generate_stim(coord_sys: int,
         full_circuit.append_operation("QUBIT_COORDS", [i], coords)
 
     
-    full_circuit.append_operation("R", data_qubits + measure_qubits[0] )
-    if noise[4] > 0: full_circuit.append_operation("X_ERROR", data_qubits + measure_qubits[0] , noise[4])
-    for i in [1,2]:
+    full_circuit.append_operation(reset[basis], data_qubits )
+    if noise[4] > 0: full_circuit.append_operation(error[basis], data_qubits, noise[4])
+
+    for i in [0,1,2]:
         if num_qubit_measures[i] > 0:
             full_circuit.append_operation(reset[i], measure_qubits[i] )
             if noise[4] > 0: full_circuit.append_operation(error[i], measure_qubits[i] , noise[4])
@@ -155,13 +158,11 @@ def generate_stim(coord_sys: int,
         round_circuit_yes_detectors * (num_cycles - 1)
     )
 
-    if noise[2] > 0: full_circuit.append_operation("X_ERROR",data_qubits,noise[2])
-    full_circuit.append_operation("M",data_qubits)
-
-    
+    if noise[2] > 0: full_circuit.append_operation(error[basis],data_qubits,noise[2])
+    full_circuit.append_operation(measure[basis],data_qubits)
     
     for i in [0,1,2]:
-        if basis == (i + 1):
+        if basis == i:
             if (num_qubit_measures[i] > 0):
                 for index,m in enumerate(measure_qubits[i]):
                     if i != 0 or (m not in x_qubits and m not in y_qubits):
