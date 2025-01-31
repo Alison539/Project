@@ -48,7 +48,13 @@ def generate_stim(coord_sys: int,
         if qubit_info.get("logical_observable"):
             logical_observable_qubits.append(i)
 
-    num_data_qubits = len(data_qubits)
+    measure_qubits_given_basis = [
+        list(set(measure_qubits[0]) - set(x_qubits) - set(y_qubits)),
+        measure_qubits[1] + x_qubits,
+        measure_qubits[2] + y_qubits,
+    ]
+    # TODO: currently basically saying only do hadamard when doing measurements in Z - if not true, code is broken
+
     num_qubit_measures = [len(measure_qubits[i]) for i in [0,1,2]]
     num_x_qubits = len(x_qubits)
     num_y_qubits = len(y_qubits)
@@ -57,18 +63,28 @@ def generate_stim(coord_sys: int,
     measurement_qubits = measure_qubits[0] + measure_qubits[1] + measure_qubits[2]
     measurements_per_cycle = len(measurement_qubits)
 
-
+    not_used = [True for i in range(0, num_qubits)]
     cnot_operations: List[List[int]] = []
     for i in range(0, num_qubits):
         for j in range(0, num_qubits):
             timesteps = two_qubit_operations[i][j]
             if len(timesteps) > 0:
+                not_used[i] = False
+                not_used[j] = False
                 for time in timesteps:
                     while time > len(cnot_operations):
                         cnot_operations.append([])
                     cnot_operations[time - 1].append(i)
                     cnot_operations[time - 1].append(j)
-    
+
+    not_used_qubits = []
+    for i in range(0, num_qubits):
+        if (not_used[i]):
+            not_used_qubits.append(i)
+    data_qubits = list(set(data_qubits) - set(not_used_qubits))
+    num_data_qubits = len(data_qubits)
+
+
     def generate_circuit_round(detectors: bool):
         circuit = stim.Circuit()
 
@@ -110,7 +126,7 @@ def generate_stim(coord_sys: int,
             record_target.append(stim.target_rec(relative_index))
             if detectors:
                 record_target.append(stim.target_rec(relative_index - measurements_per_cycle))
-            if detectors or (mqubit_id in measure_qubits[basis]) or (basis == 1 and mqubit_id in x_qubits) or (basis == 2 and mqubit_id in y_qubits):
+            if detectors or (mqubit_id in measure_qubits_given_basis[basis]):
                 coords = translate_coordinates(qubit_operations[mqubit_id].get("location"))
                 circuit.append_operation("DETECTOR",record_target, coords + [0])
             
@@ -118,11 +134,9 @@ def generate_stim(coord_sys: int,
 
         return circuit
 
-    def get_relative_indeces_for_basis_detectors(tbasis, index_within_basis_measure_qubits, m):
+    def get_relative_indeces_for_basis_detectors(m):
         relative_indeces = []
-        relative_index = index_within_basis_measure_qubits - num_data_qubits
-        for j in range(tbasis, 3):
-            relative_index -= num_qubit_measures[j]
+        relative_index = measurement_qubits.index(m) - measurements_per_cycle - num_data_qubits
         relative_indeces.append(stim.target_rec(relative_index))
         for j in range(0, num_qubits):
             timesteps = two_qubit_operations[j][m]
@@ -138,8 +152,9 @@ def generate_stim(coord_sys: int,
     full_circuit = stim.Circuit()
 
     for i in range(0, num_qubits):
-        coords = translate_coordinates(qubit_operations[i].get("location"))
-        full_circuit.append_operation("QUBIT_COORDS", [i], coords)
+        if not not_used[i]:
+            coords = translate_coordinates(qubit_operations[i].get("location"))
+            full_circuit.append_operation("QUBIT_COORDS", [i], coords)
 
     
     full_circuit.append_operation(reset[basis], data_qubits )
@@ -161,24 +176,10 @@ def generate_stim(coord_sys: int,
     if noise[2] > 0: full_circuit.append_operation(error[basis],data_qubits,noise[2])
     full_circuit.append_operation(measure[basis],data_qubits)
     
-    for i in [0,1,2]:
-        if basis == i:
-            if (num_qubit_measures[i] > 0):
-                for index,m in enumerate(measure_qubits[i]):
-                    if i != 0 or (m not in x_qubits and m not in y_qubits):
-                        relative_indeces = get_relative_indeces_for_basis_detectors(i, index, m)
-                        coords = translate_coordinates(qubit_operations[m].get("location"))
-                        full_circuit.append_operation("DETECTOR",relative_indeces, coords + [0])
-    if basis == 1:
-        if (num_x_qubits > 0):
-            for m in x_qubits:
-                relative_indeces = get_relative_indeces_for_basis_detectors(0, measure_qubits[0].index(m), m)
-                coords = translate_coordinates(qubit_operations[m].get("location"))
-                full_circuit.append_operation("DETECTOR",relative_indeces, coords + [0])
-    elif basis == 2:
-        if (num_y_qubits > 0):
-            for m in y_qubits:
-                relative_indeces = get_relative_indeces_for_basis_detectors(0, measure_qubits[0].index(m), m)
+
+    if (len(measure_qubits_given_basis[basis]) > 0):
+        for m in (measure_qubits_given_basis[basis]):
+                relative_indeces = get_relative_indeces_for_basis_detectors(m)
                 coords = translate_coordinates(qubit_operations[m].get("location"))
                 full_circuit.append_operation("DETECTOR",relative_indeces, coords + [0])
 

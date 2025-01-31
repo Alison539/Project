@@ -22,15 +22,15 @@ def qec_data():
     name = data.get("name")
 
     toReturn = ""
-    try:
-        circuit = generate_stim(coord_sys=coord_sys, qubit_operations=qubit_operations, two_qubit_operations=two_qubit_operations,noise=noise,num_cycles=num_cycles,name=name,basis=basis)
-        with open('new_circuit.txt', 'w') as f:
-            with redirect_stdout(f):
-                print(circuit)
-        with open('new_circuit.txt', 'r') as f:
-            toReturn = f.read()
-    except:
-        toReturn = "An error occurred"
+    #try:
+    circuit = generate_stim(coord_sys=coord_sys, qubit_operations=qubit_operations, two_qubit_operations=two_qubit_operations,noise=noise,num_cycles=num_cycles,name=name,basis=basis)
+    with open('new_circuit.txt', 'w') as f:
+        with redirect_stdout(f):
+            print(circuit)
+    with open('new_circuit.txt', 'r') as f:
+        toReturn = f.read()
+    #except:
+    #    toReturn = "An error occurred"
     
     return jsonify({"stimcode": (toReturn) })
 
@@ -50,7 +50,7 @@ def generate_graph():
     basis = data.get("basis")
     name = data.get("name")
 
-    generate_qec_graph(coord_sys, qubit_operations, two_qubit_operations, noiseRange, step, num_cycles, basis, name)
+    generate_qec_graph(coord_sys=coord_sys, qubit_operations=qubit_operations, two_qubit_operations=two_qubit_operations, noiseRange=noiseRange, step=step, num_cycles=num_cycles,  name=name, basis=basis)
     return{"url": "http://localhost:5000/api/get-graph"}
     
 

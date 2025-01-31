@@ -48,7 +48,6 @@ def use_surface_code(surface_code_tasks, graph_file, noises, step, name, rounds)
         label="least squares line fit",
     )
     ax.set_xlim(max(noises[0] - step, 0), noises[-1] + step)
-    ax.semilogy()
     ax.set_title(name)
     ax.set_xlabel("Physical Error Rate")
     ax.set_ylabel("Logical Error Rate")
