@@ -75,7 +75,7 @@ def qec_data():
     with open("new_circuit.txt", "r") as f:
         toReturn = f.read()
     # except:
-    #    toReturn = "An error occurred"
+    #    return jsonify({"error": "Error occurred when generating Stim Code"}), 400
 
     return jsonify({"stimcode": (toReturn)})
 

@@ -76,7 +76,7 @@ const SetDetails = () => {
           setStimCode(response.data.stimcode);
           navigate("/Output_code");
         })
-        .catch((err) => { console.error("Error communicating with the backend:", err) })
+        .catch((err) => { alert("Error communicating with the backend:", err) })
     }
   }
 

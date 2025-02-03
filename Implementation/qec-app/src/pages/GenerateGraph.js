@@ -10,9 +10,9 @@ const GenerateGraph = () => {
     const { numCycles, name, basis } = useContext(DetailsContext)
     const { coordSys } = useContext(CoordinateSystemContext)
     const { qubitOperations, twoQubitOperations } = useContext(OperationContext)
-    
+
     const [graphURL, setGraphURL] = useState("")
-    const [noiseRange, setNoiseRange] = useState([0.01,0.02]);
+    const [noiseRange, setNoiseRange] = useState([0.01, 0.02]);
     const [step, setStep] = useState(0.002);
 
     const setNoiseRangeIndex = (newNoiseBound, index) => {
@@ -77,7 +77,7 @@ const GenerateGraph = () => {
                 })
                 .catch((error) => {
                     setIsLoading(false)
-                    console.error("Error communicating with the backend:", error)
+                    alert("Error communicating with the backend:", error)
                 })
         }
     }
@@ -112,7 +112,7 @@ const GenerateGraph = () => {
                 :
                 (<div>
                     {graphURL &&
-                        <img src={graphURL} alt="Generated Graph" width = "60%" style={{marginLeft:"20%", marginTop:"15px"}}/>
+                        <img src={graphURL} alt="Generated Graph" width="60%" style={{ marginLeft: "20%", marginTop: "15px" }} />
                     }
                 </div>)
             }
