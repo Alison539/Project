@@ -52,21 +52,15 @@ def generate_stim(
             logical_observable_qubits.append(i)
 
     measure_qubits_given_basis = [
-        list(
-            (set(measure_qubits[0]) - set(x_qubits) - set(y_qubits))
-            + set(x_qubits).intersection(set(measure_qubits[1]))
-            + set(y_qubits).intersection(set(measure_qubits[2]))
-        ),
-        list(
-            (set(measure_qubits[1]) - set(x_qubits) - set(y_qubits))
-            + set(x_qubits).intersection(set(measure_qubits[0]))
-            + set(y_qubits).intersection(set(measure_qubits[1]))
-            + set(x_qubits).intersection(set(measure_qubits[2]))
-        ),
-        list(
-            (set(measure_qubits[2]) - set(x_qubits) - set(y_qubits))
-            + set(y_qubits).intersection(set(measure_qubits[0]))
-        ),
+        list((set(measure_qubits[0]) - set(x_qubits) - set(y_qubits)))
+        + list(set(x_qubits).intersection(set(measure_qubits[1])))
+        + list(set(y_qubits).intersection(set(measure_qubits[2]))),
+        list((set(measure_qubits[1]) - set(x_qubits) - set(y_qubits)))
+        + list(set(x_qubits).intersection(set(measure_qubits[0])))
+        + list(set(y_qubits).intersection(set(measure_qubits[1])))
+        + list(set(x_qubits).intersection(set(measure_qubits[2]))),
+        list((set(measure_qubits[2]) - set(x_qubits) - set(y_qubits)))
+        + list(set(y_qubits).intersection(set(measure_qubits[0]))),
     ]
     # TODO: CHECK THIS IS RIGHT
 
