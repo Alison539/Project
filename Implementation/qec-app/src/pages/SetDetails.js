@@ -48,8 +48,8 @@ const SetDetails = () => {
         }
       }
     })
-    if (!errorOccurred && (numCycles < 1 || numCycles > 1000)) {
-      alert("Please choose a number of repetitions between 1 and 1000");
+    if (!errorOccurred && (numCycles < 1 || numCycles > 10000)) {
+      alert("Please choose a number of repetitions between 1 and 10000");
       errorOccurred = true;
     }
     if (!errorOccurred) {
