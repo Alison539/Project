@@ -2,12 +2,13 @@ from typing import List, Dict
 import matplotlib.pyplot
 import stim
 import matplotlib
-matplotlib.use('agg')
+
+matplotlib.use("agg")
 import sinter
 import os
 import scipy.stats
 import numpy as np
-from .generate_stim import generate_stim
+from .generate_stim_mult import generate_stim_given_processed_input, process_input
 
 
 def use_surface_code(surface_code_tasks, graph_file, noises, step, name, rounds):
@@ -26,9 +27,7 @@ def use_surface_code(surface_code_tasks, graph_file, noises, step, name, rounds)
     for stats in collected_surface_code_stats:
         n = stats.json_metadata["n"]
         per_shot = stats.errors / stats.shots
-        per_round = sinter.shot_error_rate_to_piece_error_rate(
-            per_shot, pieces=rounds
-        )
+        per_round = sinter.shot_error_rate_to_piece_error_rate(per_shot, pieces=rounds)
 
         xs.append(n)
         ys.append(per_round)
@@ -37,7 +36,7 @@ def use_surface_code(surface_code_tasks, graph_file, noises, step, name, rounds)
     fit = scipy.stats.linregress(xs, log_ys)
 
     fig, ax = matplotlib.pyplot.subplots(1, 1)
-    ax.scatter(xs, ys, marker='x')
+    ax.scatter(xs, ys, marker="x")
     ax.plot(
         [noises[0], noises[-1]],
         [
@@ -54,7 +53,8 @@ def use_surface_code(surface_code_tasks, graph_file, noises, step, name, rounds)
     ax.grid(which="major")
     ax.grid(which="minor")
     ax.legend()
-    fig.savefig(graph_file,bbox_inches="tight")
+    fig.savefig(graph_file, bbox_inches="tight")
+
 
 def generate_qec_graph(
     coord_sys: int,
@@ -66,50 +66,62 @@ def generate_qec_graph(
     name: str,
     basis: int,
 ):
-    
+
     noises = []
     noise = noiseRange[0]
     while noise <= noiseRange[1]:
         noises.append(noise)
         noise += step
 
+    processed_input = process_input(
+        qubit_operations=qubit_operations,
+        two_qubit_operations=two_qubit_operations,
+        qubits_involved=[i for i in range(0, len(qubit_operations))],
+    )
     my_surface_code_tasks = [
         sinter.Task(
-            circuit=generate_stim(
+            circuit=generate_stim_given_processed_input(
                 coord_sys=coord_sys,
                 qubit_operations=qubit_operations,
                 two_qubit_operations=two_qubit_operations,
                 noise=[n, n, n, n, n],
                 num_cycles=num_cycles,
-                name=name,
                 basis=basis,
+                preprocessed_input=processed_input,
             ),
             json_metadata={"n": n},
         )
         for n in noises
     ]
 
-    
     use_surface_code(my_surface_code_tasks, "graph.png", noises, step, name, num_cycles)
 
-    return ("graph.png")
+    return "graph.png"
+
 
 def test():
-    noises = [0.01,0.012,0.014,0.016,0.018]
+    noises = [0.01, 0.012, 0.014, 0.016, 0.018]
 
     actual_surface_code_tasks = [
         sinter.Task(
-            circuit= stim.Circuit.generated(
+            circuit=stim.Circuit.generated(
                 "surface_code:rotated_memory_z",
                 rounds=9,
-                distance= 3,
+                distance=3,
                 after_clifford_depolarization=n,
                 after_reset_flip_probability=n,
                 before_measure_flip_probability=n,
                 before_round_data_depolarization=n,
             ),
-            json_metadata={'n': n},
+            json_metadata={"n": n},
         )
         for n in noises
     ]
-    use_surface_code(actual_surface_code_tasks, "actual_graph.png", noises, 0.002, "Using Stim Generated", 9 )
+    use_surface_code(
+        actual_surface_code_tasks,
+        "actual_graph.png",
+        noises,
+        0.002,
+        "Using Stim Generated",
+        9,
+    )
