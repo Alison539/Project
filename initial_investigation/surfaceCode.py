@@ -296,7 +296,11 @@ def main():
     ]
     use_surface_code(actual_surface_code_tasks,noises, "actual_graph.png")
     
-
+def test():
+    circuit = stim.Circuit.generated("surface_code:rotated_memory_z",
+    distance=3,
+    rounds=10000,)
+    print(circuit)
 
 if __name__ == "__main__":
-    main()
+    test()

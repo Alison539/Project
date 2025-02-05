@@ -2,4 +2,7 @@
 /routes/__pycache__
 /routes/actual_graph.png
 graph.png
+graph_copy.png
+actual_graph_rotated_x.png
+actual_graph_rotated_z.png
 new_circuit.txt
