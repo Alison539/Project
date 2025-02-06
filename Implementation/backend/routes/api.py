@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, send_file, make_response
 from contextlib import redirect_stdout
 from .generate_stim import generate_stim
-from .qec_graph import generate_qec_graph
+from .qec_graph_mult import generate_qec_graph_mult
 from .verify_input import (
     validate_dict,
     verify_noise_range,
@@ -12,6 +12,8 @@ from .verify_input import (
     verify_num_cycles,
     verify_qubits,
     verify_step,
+    verify_ratio,
+    verify_distances,
 )
 import os
 
@@ -95,8 +97,10 @@ def generate_graph():
             "noiseRange",
             "step",
             "numCycles",
+            "ratio",
             "basis",
             "name",
+            "distances",
         ],
     ):
         return jsonify({"error": "Invalid or missing data"}), 400
@@ -130,13 +134,23 @@ def generate_graph():
     if not verify_name(name):
         return jsonify({"error": "Invalid name"}), 400
 
-    generate_qec_graph(
+    distances = data.get("distances")
+    if not verify_distances(distances, qubit_operations):
+        return jsonify({"error": "Invalid distance sets"}), 400
+
+    ratio = data.get("ratio")
+    if not verify_ratio(ratio):
+        return jsonify({"error": "Invalid ratio"}), 400
+
+    generate_qec_graph_mult(
         coord_sys=coord_sys,
         qubit_operations=qubit_operations,
         two_qubit_operations=two_qubit_operations,
         noiseRange=noiseRange,
         step=step,
         num_cycles=num_cycles,
+        ratio=ratio,
+        distances=distances,
         name=name,
         basis=basis,
     )

@@ -22,6 +22,10 @@ def verify_num_cycles(num_cycles: int):
     return isinstance(num_cycles, int) and 1 <= num_cycles <= 10000
 
 
+def verify_ratio(ratio: float):
+    return (isinstance(ratio, int) or isinstance(ratio, float)) and 1 <= ratio <= 10000
+
+
 def verify_name(name: str):
     return isinstance(name, str)
 
@@ -103,4 +107,27 @@ def verify_qubits(
                 if not (isinstance(time, int) and 1 <= time <= 20):
                     return False
 
+    return True
+
+
+def verify_distances(distances: List[List], qubit_operations: List[Dict]):
+    num_qubits = len(qubit_operations)
+    if not isinstance(distances, list):
+        return False
+    for distance in distances:
+        if not isinstance(distance, list):
+            return False
+        if not (isinstance(distance[0], int) and distance[0] >= 0):
+            return False
+        if not isinstance(distance[1], list):
+            return False
+
+        for qubit_involved in distance[1]:
+            if not (
+                isinstance(qubit_involved, int) and 0 <= qubit_involved < num_qubits
+            ):
+                return False
+
+        if len(set(distance[1])) != len(distance[1]):
+            return False
     return True

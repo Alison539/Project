@@ -12,7 +12,7 @@ from .generate_stim_mult import generate_stim_given_processed_input, process_inp
 
 
 def use_surface_code_mult(
-    surface_code_tasks, graph_file, noises, step, name, rounds, distances
+    surface_code_tasks, graph_file, noises, step, name, distances
 ):
     collected_surface_code_stats: List[sinter.TaskStats] = sinter.collect(
         num_workers=int(os.cpu_count() or 0),
@@ -25,7 +25,10 @@ def use_surface_code_mult(
 
     num_distances = len(distances)
 
-    colours = matplotlib.cm.get_cmap("YlOrRd", num_distances)
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+        "custom", ["#FFA500", "#8B0000"], N=num_distances
+    )
+    colours = [cmap(i / (num_distances - 1)) for i in range(num_distances)]
 
     xs = [[] for _ in range(0, num_distances)]
     ys = [[] for _ in range(0, num_distances)]
@@ -33,9 +36,9 @@ def use_surface_code_mult(
     for stats in collected_surface_code_stats:
         n = stats.json_metadata["n"]
         i = stats.json_metadata["d_index"]
+        r = stats.json_metadata["r"]
         per_shot = stats.errors / stats.shots
-        per_round = sinter.shot_error_rate_to_piece_error_rate(per_shot, pieces=rounds)
-
+        per_round = sinter.shot_error_rate_to_piece_error_rate(per_shot, pieces=r)
         xs[i].append(n)
         ys[i].append(per_round)
         log_ys[i].append(np.log(per_round))
@@ -45,8 +48,13 @@ def use_surface_code_mult(
         fit.append(scipy.stats.linregress(xs[i], log_ys[i]))
 
     fig, ax = matplotlib.pyplot.subplots(1, 1)
+
     for i in range(num_distances):
-        ax.scatter(xs[i], ys[i], marker="x", color=colours(i))
+        if num_distances == 1:
+            newLabel = "Least Squares Line Fit"
+        else:
+            newLabel = "Distance = " + str(distances[i][0])
+        ax.scatter(xs[i], ys[i], marker="x", color=colours[i])
         ax.plot(
             [noises[0], noises[-1]],
             [
@@ -54,9 +62,10 @@ def use_surface_code_mult(
                 np.exp(fit[i].intercept + fit[i].slope * noises[-1]),
             ],
             linestyle="--",
-            label="Distance = " + str(distances[i]),
-            color=colours(i),
+            label=newLabel,
+            color=colours[i],
         )
+
     ax.set_xlim(max(noises[0] - step, 0), noises[-1] + step)
     ax.set_title(name)
     ax.set_xlabel("Physical Error Rate")
@@ -73,8 +82,9 @@ def generate_qec_graph_mult(
     two_qubit_operations: List[List[List[int]]],
     noiseRange: List[float],
     step: float,
+    ratio: float,
     num_cycles: int,
-    distances: List[Tuple[int, List[int]]],
+    distances: List[List],
     name: str,
     basis: int,
 ):
@@ -96,6 +106,11 @@ def generate_qec_graph_mult(
             qubits_involved=distance[1],
         )
 
+        if distance[0] == 0:
+            num_rounds = num_cycles
+        else:
+            num_rounds = int(distance[0] * ratio)
+
         new_surface_code_tasks = [
             sinter.Task(
                 circuit=generate_stim_given_processed_input(
@@ -103,11 +118,11 @@ def generate_qec_graph_mult(
                     qubit_operations=qubit_operations,
                     two_qubit_operations=two_qubit_operations,
                     noise=[n, n, n, n, n],
-                    num_cycles=num_cycles,
+                    num_cycles=num_rounds,
                     basis=basis,
                     preprocessed_input=processed_input,
                 ),
-                json_metadata={"n": n, "d_index": index},
+                json_metadata={"n": n, "d_index": index, "r": num_rounds},
             )
             for n in noises
         ]
@@ -119,7 +134,6 @@ def generate_qec_graph_mult(
         noises,
         step,
         name,
-        num_cycles,
         distances,
     )
 

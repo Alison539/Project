@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { QubitContext } from "./QubitContext";
 import { CoordinateSystemContext } from "./CoordinateSystemContext";
+import { DistancesContext } from "./DistancesContext";
 
 export const OperationContext = createContext();
 
@@ -46,8 +47,9 @@ class QubitOperation {
 }
 
 export const OperationProvider = ({ children }) => {
-    const { qubits} = useContext(QubitContext)
+    const { qubits } = useContext(QubitContext)
     const { coordSys } = useContext(CoordinateSystemContext)
+    const { initialiseDistance } = useContext(DistancesContext)
 
     const [qubitOperations, setQubitOperations] = useState([]);
     const [twoQubitOperations, setTwoQubitOperations] = useState([]);
@@ -59,6 +61,7 @@ export const OperationProvider = ({ children }) => {
     }
 
     const instantiate = () => {
+        initialiseDistance();
         const qlength = qubits.length
         setLength(qlength);
         setCoordsToIndeces(() => {

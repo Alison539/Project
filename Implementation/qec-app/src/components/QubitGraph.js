@@ -5,10 +5,10 @@ import { QubitContext } from "../contexts/QubitContext";
 import { OperationContext } from "../contexts/OperationContext";
 import { CoordinateSystemContext } from "../contexts/CoordinateSystemContext";
 
-const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
+const QubitGraph = ({ onClicked, controlQubit, qubitToCopy, selected_distance_id, onHover }) => {
   const { coordsGivenCoordSys } = useContext(CoordinateSystemContext)
   const { qubitOperations, twoQubitOperations } = useContext(OperationContext)
-  const { highest} = useContext(QubitContext);
+  const { highest } = useContext(QubitContext);
 
   const canvasRef = useRef(null);
   const coordDimension = max(highest[0] + 1, highest[1] + 1)
@@ -39,7 +39,7 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
         })
       }
 
-      const separation = qubitSize/40;
+      const separation = qubitSize / 40;
       const proportionalLength = 0.6;
       const control = scaleLineCoords(startpoint);
       const target = scaleLineCoords(endpoint);
@@ -47,14 +47,14 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
       const dx = target.x - control.x
       const dy = target.y - control.y
 
-      const length = sqrt(((target.x - control.x)**2) + ((target.y - control.y)**2))
+      const length = sqrt(((target.x - control.x) ** 2) + ((target.y - control.y) ** 2))
 
       const udx = dx / length
-      const udy =  dy / length
+      const udy = dy / length
 
       const controlPoint = {
-        x: control.x + (udy * separation) + (dx*((1-proportionalLength)/2)),
-        y: control.y - (udx * separation) + (dy*((1-proportionalLength)/2)),
+        x: control.x + (udy * separation) + (dx * ((1 - proportionalLength) / 2)),
+        y: control.y - (udx * separation) + (dy * ((1 - proportionalLength) / 2)),
       }
       const targetPoint = {
         x: controlPoint.x + (dx * proportionalLength),
@@ -129,6 +129,7 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
   }, [qubitOperations, twoQubitOperations, highest, qubitSize, coordsGivenCoordSys]);
 
   return (
+
     <div style={{ position: "relative" }}>
       <canvas
         ref={canvasRef}
@@ -148,7 +149,7 @@ const QubitGraph = ({ onClicked, controlQubit, qubitToCopy }) => {
         width: "100%",
       }}>
         {qubitOperations.map((qubit, index) => (
-          < OperationQubitButton key={index} point={scaleCoordinate(qubit.getLocation())} onClicked={onClicked} qubit={qubit} amSelected={qubit.getid() === qubitToCopy || qubit.getid() === controlQubit} qubitSize={qubitSize} />
+          < OperationQubitButton key={index} point={scaleCoordinate(qubit.getLocation())} onClicked={onClicked} qubit={qubit} amSelected={qubit.getid() === qubitToCopy || qubit.getid() === controlQubit} qubitSize={qubitSize} selected_distance_id={selected_distance_id} onHover={onHover} />
         ))}
       </div>
     </div>

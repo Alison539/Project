@@ -5,15 +5,21 @@ import TopBanner from "../components/TopBanner";
 import { DetailsContext } from "../contexts/DetailsContext";
 import { CoordinateSystemContext } from "../contexts/CoordinateSystemContext";
 import { OperationContext } from "../contexts/OperationContext";
+import { DistancesContext } from "../contexts/DistancesContext";
+import ConditionalNavigationButton from "../components/ConditionalNavigationButton";
+import { useNavigate } from "react-router-dom";
 
 const GenerateGraph = () => {
     const { numCycles, name, basis } = useContext(DetailsContext)
     const { coordSys } = useContext(CoordinateSystemContext)
     const { qubitOperations, twoQubitOperations } = useContext(OperationContext)
+    const { distances, resetDistances, ratio } = useContext(DistancesContext)
 
     const [graphURL, setGraphURL] = useState("")
     const [noiseRange, setNoiseRange] = useState([0.01, 0.02]);
     const [step, setStep] = useState(0.002);
+
+    const navigate = useNavigate()
 
     const setNoiseRangeIndex = (newNoiseBound, index) => {
         let newNoiseRange = [...noiseRange];
@@ -27,7 +33,15 @@ const GenerateGraph = () => {
         setNoiseRangeIndex(parseFloat(e.target.value), index)
     }
 
-    const handleNext = () => {
+    const handleAddDistances = () => {
+        if (distances.length === 1) {
+            resetDistances()
+        }
+        navigate("/add_distances");
+
+    }
+
+    const onGenerate = () => {
         let errorOccurred = false;
         noiseRange.forEach((noise) => {
             if (noise < 0 || noise > 1) {
@@ -57,8 +71,10 @@ const GenerateGraph = () => {
                 qubitOperations: qubitOperations,
                 twoQubitOperations: twoQubitOperations,
                 noiseRange: noiseRange,
+                ratio: ratio,
                 step: step,
                 numCycles: numCycles,
+                distances: distances,
                 basis: basis,
                 name: name,
             };
@@ -104,7 +120,7 @@ const GenerateGraph = () => {
                     <input className="details-input" id="step" step="0.001" max="1" min="0" value={step} type="number" onChange={(e) => { setStep(parseFloat(e.target.value)) }} />
                 </div>
             </div>
-            <button className="navigation-button" onClick={handleNext} style={{ marginTop: "10px", marginLeft: "45%" }}>Generate Graph</button>
+            <button className="navigation-button" onClick={onGenerate} style={{ marginTop: "10px", marginLeft: "45%" }}>Generate Graph</button>
             {isLoading ?
                 (<div className="loading">
                     <h2 style={{ marginLeft: "44%" }}>🌀 Loading...</h2>
@@ -117,6 +133,7 @@ const GenerateGraph = () => {
                 </div>)
             }
             <NavigationButton label="Back" destinationPage={"/Output_code"} position={{ bottom: "20px", left: "20px" }} />
+            <ConditionalNavigationButton label="Add Different Distances" checkAndNavigate={handleAddDistances} position={{ bottom: "20px", right: "20px" }} />
         </div>
     );
 };
