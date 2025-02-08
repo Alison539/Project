@@ -7,7 +7,7 @@ import QubitGraph from "../components/QubitGraph";
 import QubitGateButton from "../components/QubitGateButton";
 
 const Rounds = () => {
-  const {deleteOperations, replicateQubitOps, setHadamard, setMeasurement, addTwoQubitOp, setLogicalObservable} = useContext(OperationContext);
+  const { deleteOperations, replicateQubitOps, setHadamard, setMeasurement, addTwoQubitOp, setLogicalObservable } = useContext(OperationContext);
 
   const [currentOperation, setCurrentOperation] = useState(0);
   const [timeStep, setTimeStep] = useState(1);
@@ -91,7 +91,7 @@ const Rounds = () => {
           <div className="menu-option">
             <p>Add qubit operations</p>
             <ul>
-              {[1,2,3,4,5,6].map((index) => (
+              {[1, 3, 4, 5].map((index) => (
                 <li>
                   <QubitGateButton currentOperation={currentOperation} onSelectOperation={onSelectOperation} index={index} />
                 </li>
@@ -114,12 +114,12 @@ const Rounds = () => {
           </div>
         </div>
 
-        <div style={{width: "60%" }}>
+        <div style={{ width: "60%" }}>
           <div style={{ textAlign: "center", height: "15%" }}>
             {supportMessage}
           </div>
           <div>
-            <QubitGraph onClicked={onClick} controlQubit={controlQubit} qubitToCopy = {qubitToCopy}/>
+            <QubitGraph onClicked={onClick} controlQubit={controlQubit} qubitToCopy={qubitToCopy} />
           </div>
         </div>
 

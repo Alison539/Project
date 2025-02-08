@@ -53,7 +53,7 @@ const SetDetails = () => {
       errorOccurred = true;
     }
     if (!errorOccurred) {
-
+      navigate("/Output_code");
       const payload = {
         coordSys: coordSys,
         qubitOperations: qubitOperations,
@@ -109,8 +109,6 @@ const SetDetails = () => {
             <label for="Z">Z</label>
             <input name="basis" type="radio" value="X" id="X" checked={basis === 1 ? "checked" : null} onClick={() => setBasis(1)} />
             <label for="X">X</label>
-            <input name="basis" type="radio" value="Y" id="Y" checked={basis === 2 ? "checked" : null} onClick={() => setBasis(2)} />
-            <label for="Y">Y</label>
           </form>
         </div>
       </div>
