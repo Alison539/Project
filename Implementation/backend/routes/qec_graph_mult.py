@@ -25,10 +25,13 @@ def use_surface_code_mult(
 
     num_distances = len(distances)
 
-    cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
-        "custom", ["#FFA500", "#8B0000"], N=num_distances
-    )
-    colours = [cmap(i / (num_distances - 1)) for i in range(num_distances)]
+    if num_distances > 1:
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+            "custom", ["#FFA500", "#8B0000"], N=num_distances
+        )
+        colours = [cmap(i / (num_distances - 1)) for i in range(num_distances)]
+    else:
+        colours = ["#8B0000"]
 
     xs = [[] for _ in range(0, num_distances)]
     ys = [[] for _ in range(0, num_distances)]
@@ -81,6 +84,7 @@ def generate_qec_graph_mult(
     qubit_operations: List[Dict],
     two_qubit_operations: List[List[List[int]]],
     noiseRange: List[float],
+    noiseModel: List[float],
     step: float,
     ratio: float,
     num_cycles: int,
@@ -117,7 +121,7 @@ def generate_qec_graph_mult(
                     coord_sys=coord_sys,
                     qubit_operations=qubit_operations,
                     two_qubit_operations=two_qubit_operations,
-                    noise=[n, n, n, n, n],
+                    noise=[n * noiseModel[i] for i in range(0, 5)],
                     num_cycles=num_rounds,
                     basis=basis,
                     preprocessed_input=processed_input,

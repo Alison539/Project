@@ -95,6 +95,7 @@ def generate_graph():
             "qubitOperations",
             "twoQubitOperations",
             "noiseRange",
+            "noiseModel",
             "step",
             "numCycles",
             "ratio",
@@ -142,11 +143,16 @@ def generate_graph():
     if not verify_ratio(ratio):
         return jsonify({"error": "Invalid ratio"}), 400
 
+    noiseModel = data.get("noiseModel")
+    if not verify_noise(noiseModel):
+        return jsonify({"error": "Invalid noise model"}), 400
+
     generate_qec_graph_mult(
         coord_sys=coord_sys,
         qubit_operations=qubit_operations,
         two_qubit_operations=two_qubit_operations,
         noiseRange=noiseRange,
+        noiseModel=noiseModel,
         step=step,
         num_cycles=num_cycles,
         ratio=ratio,

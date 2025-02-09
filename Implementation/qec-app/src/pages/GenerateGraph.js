@@ -8,26 +8,31 @@ import { OperationContext } from "../contexts/OperationContext";
 import { DistancesContext } from "../contexts/DistancesContext";
 import ConditionalNavigationButton from "../components/ConditionalNavigationButton";
 import { useNavigate } from "react-router-dom";
+import { GraphContext } from "../contexts/GraphContext";
+import noiseName from "../resources/noiseDescriptions";
 
 const GenerateGraph = () => {
     const { numCycles, name, basis } = useContext(DetailsContext)
     const { coordSys } = useContext(CoordinateSystemContext)
     const { qubitOperations, twoQubitOperations } = useContext(OperationContext)
     const { distances, resetDistances, ratio } = useContext(DistancesContext)
+    const { noiseModel, changeNoiseModel, noiseRange, setNoiseRangeIndex, step, setStep } = useContext(GraphContext)
 
-    const [graphURL, setGraphURL] = useState("")
-    const [noiseRange, setNoiseRange] = useState([0.01, 0.02]);
-    const [step, setStep] = useState(0.002);
-
+    const [graphURL, setGraphURL] = useState("");
     const navigate = useNavigate()
 
-    const setNoiseRangeIndex = (newNoiseBound, index) => {
-        let newNoiseRange = [...noiseRange];
-        newNoiseRange[index] = newNoiseBound;
-        setNoiseRange(newNoiseRange)
-    }
-
     const [isLoading, setIsLoading] = useState(false)
+
+    const noiseRangeChange = (e, index) => {
+        const newProportion = parseFloat(e.target.value)
+        if (newProportion < 0 || newProportion > 1) {
+            alert("Proportion value has to be between 0 and 1")
+        }
+        else {
+            changeNoiseModel(index, newProportion)
+        }
+
+    }
 
     const noiseBoundChange = (e, index) => {
         setNoiseRangeIndex(parseFloat(e.target.value), index)
@@ -43,7 +48,7 @@ const GenerateGraph = () => {
 
     const onGenerate = () => {
         let errorOccurred = false;
-        noiseRange.forEach((noise) => {
+        noiseModel.forEach((noise) => {
             if (noise < 0 || noise > 1) {
                 if (!errorOccurred) {
                     alert("Please make noise bounds between 0 and 1");
@@ -71,6 +76,7 @@ const GenerateGraph = () => {
                 qubitOperations: qubitOperations,
                 twoQubitOperations: twoQubitOperations,
                 noiseRange: noiseRange,
+                noiseModel: noiseModel,
                 ratio: ratio,
                 step: step,
                 numCycles: numCycles,
@@ -103,8 +109,13 @@ const GenerateGraph = () => {
             <TopBanner title="Generate a Graph" description="Generate a graph of logical error rate against physical error rate for your generate QEC code for a range of noise probabilities. PyMatching, a Minimum Weight Perfect Matching decoder, is used directly when generating the results. " />
             <div style={{ width: "60%", marginLeft: "20%" }}>
                 <div className="menu-details-option">
-                    <p>Noise Model:</p>
-                    <p>Currently the probability of error shall be the same for all types of noise. </p>
+                    <p className="title-no-space">Noise Model: Fraction of the error value. All 1s mean all have the same error value.</p>
+                    {noiseModel.map((noise, index) => (
+                        <div className="details-option">
+                            <p className="no-space"> {noiseName(index)} </p>
+                            <input className="details-input" key={index} step="0.001" max="1" min="0" value={noise} type="number" onChange={(e) => { noiseRangeChange(e, index) }} />
+                        </div>
+                    ))}
                 </div>
                 <div className="menu-details-option">
                     <p className="no-space"> Range of probability of error to cover: </p>

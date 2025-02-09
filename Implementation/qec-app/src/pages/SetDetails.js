@@ -8,23 +8,7 @@ import { OperationContext } from "../contexts/OperationContext";
 import { StimCodeContext } from "../contexts/StimCodeContext";
 import { useNavigate } from "react-router-dom";
 import ConditionalNavigationButton from "../components/ConditionalNavigationButton";
-
-function noiseName(index) {
-  switch (index) {
-    case 0:
-      return ("After single-qubit gate depolarization:");
-    case 1:
-      return ("After two-qubit gate depolarization:");
-    case 2:
-      return ("Before measurement flip probability:");
-    case 3:
-      return ("Before round data depolarization:");
-    case 4:
-      return ("After reset flip probability:")
-    default:
-      break;
-  }
-}
+import noiseName from "../resources/noiseDescriptions";
 
 const SetDetails = () => {
   const { numCycles, setNumCycles, noises, setNoiseIndex, name, setName, basis, setBasis } = useContext(DetailsContext)
@@ -103,7 +87,7 @@ const SetDetails = () => {
           <input className="details-input" id="name" value={name} type="text" onChange={(e) => { setName(e.target.value) }} />
         </div>
         <div className="menu-details-option">
-          <p> Basis: </p>
+          <p> What basis are the data qubits initialised to: </p>
           <form style={{ display: "flex" }}>
             <input name="basis" type="radio" value="Z" id="Z" checked={basis === 0 ? "checked" : null} onClick={() => setBasis(0)} />
             <label for="Z">Z</label>

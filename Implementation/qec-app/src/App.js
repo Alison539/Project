@@ -13,6 +13,7 @@ import { DetailsProvider } from "./contexts/DetailsContext";
 import { StimCodeProvider } from "./contexts/StimCodeContext";
 import { DistancesProvider } from "./contexts/DistancesContext";
 import CreateDistances from "./pages/CreateDistances";
+import { GraphProvider } from "./contexts/GraphContext";
 
 function App() {
   return (
@@ -22,19 +23,21 @@ function App() {
           <OperationProvider>
             <DetailsProvider>
               <StimCodeProvider>
-                <div className="main">
-                  <Router>
-                    <Routes>
-                      <Route path="/" element={<SelectCoordinateSystem />} />
-                      <Route path="/qubit_setup" element={<QubitSetup />} />
-                      <Route path="/rounds" element={<Rounds />} />
-                      <Route path="/set_details" element={<SetDetails />} />
-                      <Route path="/output_code" element={<OutputCode />} />
-                      <Route path="/generate_graph" element={<GenerateGraph />} />
-                      <Route path="/add_distances" element={<CreateDistances />} />
-                    </Routes>
-                  </Router>
-                </div>
+                <GraphProvider>
+                  <div className="main">
+                    <Router>
+                      <Routes>
+                        <Route path="/" element={<SelectCoordinateSystem />} />
+                        <Route path="/qubit_setup" element={<QubitSetup />} />
+                        <Route path="/rounds" element={<Rounds />} />
+                        <Route path="/set_details" element={<SetDetails />} />
+                        <Route path="/output_code" element={<OutputCode />} />
+                        <Route path="/generate_graph" element={<GenerateGraph />} />
+                        <Route path="/add_distances" element={<CreateDistances />} />
+                      </Routes>
+                    </Router>
+                  </div>
+                </GraphProvider>
               </StimCodeProvider>
             </DetailsProvider>
           </OperationProvider>
