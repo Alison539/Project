@@ -1,4 +1,5 @@
 from typing import List, Dict, Tuple
+
 import matplotlib.pyplot
 import stim
 import matplotlib
@@ -8,7 +9,28 @@ import sinter
 import os
 import scipy.stats
 import numpy as np
+
 from .generate_stim_mult import generate_stim_given_processed_input, process_input
+
+
+def calculate_threshold(fits, lowest_noise, highest_noise, num_distances):
+    if len(fits) < 2:
+        return None
+    else:
+        matrixA = np.ones((num_distances, 2))
+        for i in range(0, num_distances):
+            matrixA[i][0] = -fits[i].slope
+        b = [fits[i].intercept for i in range(0, num_distances)]
+
+        try:
+            threshold, _, _, _ = np.linalg.lstsq(matrixA, b, rcond=None)
+        except np.linalg.LinAlgError:
+            return None
+        print(threshold)
+        if lowest_noise < threshold[0] < highest_noise:
+            return threshold[0]
+        else:
+            return None
 
 
 def use_surface_code_mult(
@@ -19,7 +41,7 @@ def use_surface_code_mult(
         tasks=surface_code_tasks,
         decoders=["pymatching"],
         max_shots=1_000_000,
-        max_errors=100,
+        max_errors=100000,
         print_progress=False,
     )
 
@@ -78,6 +100,14 @@ def use_surface_code_mult(
     ax.legend()
     fig.savefig(graph_file, bbox_inches="tight")
 
+    threshold = calculate_threshold(
+        fits=fit,
+        lowest_noise=noises[0],
+        highest_noise=noises[-1],
+        num_distances=num_distances,
+    )
+    return threshold
+
 
 def generate_qec_graph_mult(
     coord_sys: int,
@@ -92,6 +122,7 @@ def generate_qec_graph_mult(
     name: str,
     basis: int,
 ):
+    distances = sorted(distances)
 
     noises = []
     noise = noiseRange[0]
@@ -132,7 +163,7 @@ def generate_qec_graph_mult(
         ]
         my_surface_code_tasks = my_surface_code_tasks + new_surface_code_tasks
 
-    use_surface_code_mult(
+    threshold = use_surface_code_mult(
         my_surface_code_tasks,
         "graph.png",
         noises,
@@ -141,13 +172,13 @@ def generate_qec_graph_mult(
         distances,
     )
 
-    return "graph.png"
+    return threshold
 
 
 def test():
-    step = 0.002
-    noises = [0.01 + i * step for i in range(0, 6)]
-    distances = [3, 5, 7, 9, 11]
+    step = 0.01
+    noises = [0.1 + i * step for i in range(0, 8)]
+    distances = [3, 5, 7, 9, 11, 13, 15, 17]
 
     actual_surface_code_tasks = [
         sinter.Task(
@@ -160,19 +191,19 @@ def test():
                 before_measure_flip_probability=n,
                 before_round_data_depolarization=n,
             ),
-            json_metadata={"n": n, "d_index": i},
+            json_metadata={"n": n, "d_index": i, "r": d},
         )
         for n in noises
         for i, d in enumerate(distances)
     ]
+    correctly_formed_distaces = [(i, i) for i in distances]
     use_surface_code_mult(
-        actual_surface_code_tasks,
-        "actual_graph.png",
-        noises,
-        step,
-        "Using Stim Generated",
-        9,
-        distances,
+        surface_code_tasks=actual_surface_code_tasks,
+        graph_file="actual_graph2.png",
+        noises=noises,
+        step=step,
+        name="Using Stim Generated",
+        distances=correctly_formed_distaces,
     )
 
 

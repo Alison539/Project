@@ -22,6 +22,7 @@ const GenerateGraph = () => {
     const navigate = useNavigate()
 
     const [isLoading, setIsLoading] = useState(false)
+    const [threshold, setThreshold] = useState(null)
 
     const noiseRangeChange = (e, index) => {
         const newProportion = parseFloat(e.target.value)
@@ -93,9 +94,10 @@ const GenerateGraph = () => {
                 data: JSON.stringify(payload),
             })
                 .then((response) => {
-                    setIsLoading(false)
-                    console.log(response.data)
+                    setIsLoading(false);
+                    console.log(response.data);
                     setGraphURL(response.data.url);
+                    setThreshold(response.data.threshold);
                 })
                 .catch((error) => {
                     setIsLoading(false)
@@ -141,6 +143,10 @@ const GenerateGraph = () => {
                     {graphURL &&
                         <img src={graphURL} alt="Generated Graph" width="60%" style={{ marginLeft: "20%", marginTop: "15px" }} />
                     }
+                    {threshold &&
+                        <div className="centralised-menu-option">
+                            <p>Threshold: {threshold} </p>
+                        </div>}
                 </div>)
             }
             <NavigationButton label="Back" destinationPage={"/Output_code"} position={{ bottom: "20px", left: "20px" }} />

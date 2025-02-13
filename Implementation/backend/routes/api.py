@@ -147,7 +147,7 @@ def generate_graph():
     if not verify_noise(noiseModel):
         return jsonify({"error": "Invalid noise model"}), 400
 
-    generate_qec_graph_mult(
+    threshold = generate_qec_graph_mult(
         coord_sys=coord_sys,
         qubit_operations=qubit_operations,
         two_qubit_operations=two_qubit_operations,
@@ -160,7 +160,9 @@ def generate_graph():
         name=name,
         basis=basis,
     )
-    return {"url": "http://localhost:5000/api/get-graph"}
+    return jsonify(
+        {"url": "http://localhost:5000/api/get-graph", "threshold": threshold}
+    )
 
 
 @api_blueprint.route("/get-graph", methods=["GET"])
