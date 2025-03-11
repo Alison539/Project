@@ -1,5 +1,30 @@
 import networkx as nx
+from typing import List
 import stim
+
+
+class UnionFind:
+    def __init__(self, initial_clusters):
+        self.parent = {}
+
+        for node in initial_clusters:
+            self.parent[node] = node
+
+        pass
+
+    def find(self, node):
+
+        # Root
+        if self.parent[node] == node:
+            return node
+
+        return self.find(self.parent[node])
+
+    def union(self, a, b):
+        aRoot = self.find(a)
+        bRoot = self.find(b)
+
+        self.parent[aRoot] = bRoot
 
 
 class Decoder_graph:
@@ -64,6 +89,9 @@ class Decoder_graph:
 
             # final possible line type is that "logical_observable" but that means involved in no errors
             # therefore not needed in decoder graph
+
+    def syndrome_validation(self, syndromes: List[bool]):
+        pass
 
 
 def test():
