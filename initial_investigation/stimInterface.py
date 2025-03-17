@@ -17,7 +17,7 @@ import numpy as np
 
 
 def count_logical_errors(circuit: stim.Circuit, num_shots: int) -> int:
-    print(circuit)
+    # print(circuit)
     # Sample the circuit.
 
     # want to sample detection events (symptoms) and observable flips
@@ -39,8 +39,8 @@ def count_logical_errors(circuit: stim.Circuit, num_shots: int) -> int:
 
     detector_error_model = circuit.detector_error_model(decompose_errors=False)
     # print(detector_error_model)
-    with open("detector_error_model2.txt", "w") as file:
-        detector_error_model.to_file(file)
+    # with open("detector_error_model2.txt", "w") as file:
+    #    detector_error_model.to_file(file)
     matcher = pymatching.Matching.from_detector_error_model(detector_error_model)
 
     # Run the decoder.
@@ -60,7 +60,13 @@ def count_logical_errors(circuit: stim.Circuit, num_shots: int) -> int:
 
 testing_circuit = stim.Circuit.generated(
     "surface_code:rotated_memory_z",
-    rounds=3,
+    rounds=40,
+    distance=2,
+)
+
+testing_circuit_repetition = stim.Circuit.generated(
+    "surface_code:rotated_memory_z",
+    rounds=1,
     distance=3,
     after_clifford_depolarization=0.01,
     after_reset_flip_probability=0.01,
@@ -68,14 +74,4 @@ testing_circuit = stim.Circuit.generated(
     before_round_data_depolarization=0.01,
 )
 
-testing_circuit_repetition = stim.Circuit.generated(
-    "repetition_code:memory",
-    rounds=1,
-    distance=5,
-    after_clifford_depolarization=0.01,
-    after_reset_flip_probability=0.01,
-    before_measure_flip_probability=0.01,
-    before_round_data_depolarization=0.01,
-)
-
-count_logical_errors(testing_circuit, 10000)
+print(count_logical_errors(testing_circuit_repetition, 100000))
