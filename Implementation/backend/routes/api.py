@@ -14,6 +14,7 @@ from .verify_input import (
     verify_step,
     verify_ratio,
     verify_distances,
+    verify_decoder,
 )
 import os
 
@@ -102,6 +103,7 @@ def generate_graph():
             "basis",
             "name",
             "distances",
+            "decoder",
         ],
     ):
         return jsonify({"error": "Invalid or missing data"}), 400
@@ -147,6 +149,10 @@ def generate_graph():
     if not verify_noise(noiseModel):
         return jsonify({"error": "Invalid noise model"}), 400
 
+    decoder = data.get("decoder")
+    if not verify_decoder(decoder):
+        return jsonify({"error": "Invalid decoder"}), 400
+
     threshold = generate_qec_graph_mult(
         coord_sys=coord_sys,
         qubit_operations=qubit_operations,
@@ -159,6 +165,7 @@ def generate_graph():
         distances=distances,
         name=name,
         basis=basis,
+        decoder=decoder,
     )
     return jsonify(
         {"url": "http://localhost:5000/api/get-graph", "threshold": threshold}
