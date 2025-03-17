@@ -34,6 +34,10 @@ def verify_basis(basis: int):
     return isinstance(basis, int) and basis in {0, 1, 2}
 
 
+def verify_decoder(decoder: int):
+    return isinstance(decoder, int) and decoder in {0, 1}
+
+
 def verify_noise_range(noiseRange: List[float]):
     if not (isinstance(noiseRange, list) and len(noiseRange) == 2):
         return False
