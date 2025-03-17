@@ -135,7 +135,7 @@ const QubitSetup = () => {
             backgroundColor: hoverSelect ? "#668265" : "#89a888",
           }}
           onClick={handleHoverSelect} >
-          Hover over qubits to select (o/w click individually)
+          Hover over qubits to select (otherwise click individually)
         </button>
       </div>
       <NavigationButton label="Previous" destinationPage={"/"} position={{ bottom: "20px", left: "20px" }} />

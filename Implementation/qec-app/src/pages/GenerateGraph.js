@@ -16,7 +16,7 @@ const GenerateGraph = () => {
     const { coordSys } = useContext(CoordinateSystemContext)
     const { qubitOperations, twoQubitOperations } = useContext(OperationContext)
     const { distances, resetDistances, ratio } = useContext(DistancesContext)
-    const { noiseModel, changeNoiseModel, noiseRange, setNoiseRangeIndex, step, setStep } = useContext(GraphContext)
+    const { noiseModel, changeNoiseModel, noiseRange, setNoiseRangeIndex, step, setStep, decoder, setDecoder } = useContext(GraphContext)
 
     const [graphURL, setGraphURL] = useState("");
     const navigate = useNavigate()
@@ -84,6 +84,7 @@ const GenerateGraph = () => {
                 distances: distances,
                 basis: basis,
                 name: name,
+                decoder: decoder,
             };
             axios({
                 url: "http://127.0.0.1:5000/api/generate_graph",
@@ -108,13 +109,14 @@ const GenerateGraph = () => {
 
     return (
         <div className="main">
-            <TopBanner title="Generate a Graph" description="Generate a graph of logical error rate against physical error rate for your generate QEC code for a range of noise probabilities. PyMatching, a Minimum Weight Perfect Matching decoder, is used directly when generating the results. " />
+            <TopBanner title="Generate a Graph" description="Generate a graph of logical error rate against physical error rate for your generate QEC code for a range of noise probabilities." />
             <div style={{ width: "60%", marginLeft: "20%" }}>
-                <div className="menu-details-option">
-                    <p className="title-no-space">Noise Model: Fraction of the error value. All 1s mean all have the same error value.</p>
+                <p className="title-no-space">Noise Model: </p>
+                <p className="no-space"> Fraction of the error value. All 1s mean all have the same error value.</p>
+                <div className="menu-details-option" style={{ marginTop: '0' }}>
                     {noiseModel.map((noise, index) => (
-                        <div className="details-option">
-                            <p className="no-space"> {noiseName(index)} </p>
+                        <div style={{ flex_direction: 'column', float: 'left' }}>
+                            <p> {noiseName(index)} </p>
                             <input className="details-input" key={index} step="0.001" max="1" min="0" value={noise} type="number" onChange={(e) => { noiseRangeChange(e, index) }} />
                         </div>
                     ))}
@@ -132,26 +134,42 @@ const GenerateGraph = () => {
                     <p className="no-space"> Step between error probabilities: </p>
                     <input className="details-input" id="step" step="0.001" max="1" min="0" value={step} type="number" onChange={(e) => { setStep(parseFloat(e.target.value)) }} />
                 </div>
+                <div className="menu-details-option">
+                    <p> Decoder to use: </p>
+                    <div style={{ flex_direction: 'column', float: 'left' }}>
+                        <form style={{}}>
+                            <div>
+                                <input name="basis" type="radio" value="MWPM" id="MWPM" checked={decoder === 0 ? "checked" : null} onClick={() => setDecoder(0)} />
+                                <label for="MWPM">Minimum Weight Perfect Matching (using PyMatching) </label>
+                            </div>
+                            <div>
+                                <input name="basis" type="radio" value="UF" id="UF" checked={decoder === 1 ? "checked" : null} onClick={() => setDecoder(1)} />
+                                <label for="UF">Union-Find</label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
             <button className="navigation-button" onClick={onGenerate} style={{ marginTop: "10px", marginLeft: "45%" }}>Generate Graph</button>
-            {isLoading ?
-                (<div className="loading">
-                    <h2 style={{ marginLeft: "44%" }}>🌀 Loading...</h2>
-                </div>)
-                :
-                (<div>
-                    {graphURL &&
-                        <img src={graphURL} alt="Generated Graph" width="60%" style={{ marginLeft: "20%", marginTop: "15px" }} />
-                    }
-                    {threshold &&
-                        <div className="centralised-menu-option">
-                            <p>Threshold: {threshold} </p>
-                        </div>}
-                </div>)
+            {
+                isLoading ?
+                    (<div className="loading">
+                        <h2 style={{ marginLeft: "44%" }}>🌀 Loading...</h2>
+                    </div>)
+                    :
+                    (<div>
+                        {graphURL &&
+                            <img src={graphURL} alt="Generated Graph" width="60%" style={{ marginLeft: "20%", marginTop: "15px" }} />
+                        }
+                        {threshold &&
+                            <div className="centralised-menu-option">
+                                <p>Threshold: {threshold} </p>
+                            </div>}
+                    </div>)
             }
             <NavigationButton label="Back" destinationPage={"/Output_code"} position={{ bottom: "20px", left: "20px" }} />
             <ConditionalNavigationButton label="Add Different Distances" checkAndNavigate={handleAddDistances} position={{ bottom: "20px", right: "20px" }} />
-        </div>
+        </div >
     );
 };
 

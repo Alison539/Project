@@ -6,6 +6,7 @@ export const GraphProvider = ({ children }) => {
 
     const [noiseModel, setNoiseModel] = useState([1, 1, 1, 1, 1])
     const [noiseRange, setNoiseRange] = useState([0.01, 0.02]);
+    const [decoder, setDecoder] = useState(0);
     const [step, setStep] = useState(0.002);
 
     const changeNoiseModel = (listIndex, newValue) => {
@@ -23,7 +24,7 @@ export const GraphProvider = ({ children }) => {
 
 
     return (
-        <GraphContext.Provider value={{ noiseModel, changeNoiseModel, noiseRange, setNoiseRangeIndex, step, setStep }}>
+        <GraphContext.Provider value={{ noiseModel, changeNoiseModel, noiseRange, setNoiseRangeIndex, step, setStep, decoder, setDecoder }}>
             {children}
         </GraphContext.Provider>
     );
